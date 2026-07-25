@@ -3,44 +3,106 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#061326">
   <title>Loading NOC Log Center PRO</title>
   <style>
     body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #020914; color: #f4f8ff; font-family: system-ui, sans-serif; }
-    main { text-align: center; padding: 24px; }
+    main { width: min(520px, calc(100% - 40px)); text-align: center; padding: 24px; }
     .spinner { width: 42px; height: 42px; margin: 0 auto 16px; border: 4px solid rgba(99,199,255,.2); border-top-color: #63c7ff; border-radius: 50%; animation: spin .8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    p { color: #9bb0c9; }
+    p { color: #9bb0c9; line-height: 1.7; overflow-wrap: anywhere; }
+    .error { color: #ff9aa8; }
+    button { min-height: 42px; padding: 0 18px; border: 1px solid rgba(99,199,255,.6); border-radius: 12px; color: #fff; background: #0e5fae; cursor: pointer; font: inherit; font-weight: 700; }
   </style>
 </head>
 <body>
   <main>
-    <div class="spinner" aria-hidden="true"></div>
+    <div class="spinner" id="spinner" aria-hidden="true"></div>
     <h1>NOC Log Center PRO</h1>
     <p id="status">กำลังโหลดระบบ...</p>
+    <button id="retryBtn" type="button" hidden>ลองใหม่</button>
   </main>
   <script>
-    (async () => {
-      try {
-        const paths = ["bootstrap/app.part1.b64", "bootstrap/app.part2.b64"];
-        const parts = await Promise.all(paths.map(async (path) => {
-          const response = await fetch(path, { cache: "no-store" });
-          if (!response.ok) throw new Error(`โหลด ${path} ไม่สำเร็จ`);
-          return (await response.text()).trim();
-        }));
-        const binary = atob(parts.join(""));
-        const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
-        const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
-        const sourceHtml = await new Response(stream).text();
-        const enhancedHtml = sourceHtml
-          .replace("</head>", '  <link rel="stylesheet" href="browser-tools.css">\n</head>')
-          .replace("</body>", '  <script src="browser-tools.js"></' + 'script>\n</body>');
-        document.open();
-        document.write(enhancedHtml);
-        document.close();
-      } catch (error) {
-        document.getElementById("status").textContent = `โหลดระบบไม่สำเร็จ: ${error.message}`;
-        console.error(error);
+    (() => {
+      "use strict";
+
+      const RAW_BASE = "https://raw.githubusercontent.com/Riptwosec-collab/Link-Work/main/";
+      const status = document.getElementById("status");
+      const spinner = document.getElementById("spinner");
+      const retryBtn = document.getElementById("retryBtn");
+
+      async function fetchText(path) {
+        const candidates = [];
+
+        if (location.protocol === "http:" || location.protocol === "https:") {
+          candidates.push(new URL(path, document.baseURI).href);
+        }
+        candidates.push(RAW_BASE + path);
+
+        let lastError;
+        for (const url of [...new Set(candidates)]) {
+          try {
+            const response = await fetch(url, { cache: "no-store" });
+            if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+            return await response.text();
+          } catch (error) {
+            lastError = error;
+          }
+        }
+        throw lastError || new Error(`โหลด ${path} ไม่สำเร็จ`);
       }
+
+      function escapeInlineScript(source) {
+        return source.replace(/<\/script/gi, "<\\/script");
+      }
+
+      async function loadApplication() {
+        retryBtn.hidden = true;
+        spinner.hidden = false;
+        status.classList.remove("error");
+        status.textContent = "กำลังโหลดระบบ...";
+
+        try {
+          const [part1, part2, toolsCss, toolsJs] = await Promise.all([
+            fetchText("bootstrap/app.part1.b64"),
+            fetchText("bootstrap/app.part2.b64"),
+            fetchText("browser-tools.css"),
+            fetchText("browser-tools.js")
+          ]);
+
+          const encoded = `${part1.trim()}${part2.trim()}`;
+          const binary = atob(encoded);
+          const bytes = Uint8Array.from(binary, character => character.charCodeAt(0));
+
+          if (typeof DecompressionStream !== "function") {
+            throw new Error("Browser เวอร์ชันนี้ไม่รองรับ DecompressionStream กรุณาอัปเดต Chrome หรือ Edge");
+          }
+
+          const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+          const sourceHtml = await new Response(stream).text();
+
+          if (!sourceHtml.trimStart().startsWith("<!DOCTYPE html>")) {
+            throw new Error("ข้อมูลหน้าเว็บไม่ถูกต้อง");
+          }
+
+          const enhancedHtml = sourceHtml
+            .replace("</head>", `<style id="browser-tools-style">\n${toolsCss}\n</style>\n</head>`)
+            .replace("</body>", `<script id="browser-tools-script">\n${escapeInlineScript(toolsJs)}\n<\/script>\n</body>`);
+
+          document.open();
+          document.write(enhancedHtml);
+          document.close();
+        } catch (error) {
+          console.error(error);
+          spinner.hidden = true;
+          status.classList.add("error");
+          status.textContent = `โหลดระบบไม่สำเร็จ: ${error.message}`;
+          retryBtn.hidden = false;
+        }
+      }
+
+      retryBtn.addEventListener("click", loadApplication);
+      loadApplication();
     })();
   </script>
 </body>
