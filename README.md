@@ -1,11 +1,19 @@
-# NOC Log Center PRO
+# LinkWork
 
-เครื่องมือสร้างและคัดลอก NOC Log แบบหน้าเว็บเดียว รองรับวันที่และเวลาอัตโนมัติ, Custom Log, ประวัติการคัดลอก, การค้นหา/กรอง และการสำรอง/กู้คืนข้อมูลใน Browser
+เครื่องมือหน้าเว็บเดียวสำหรับงานประจำวันและงาน NOC รองรับ Quick Copy Log, Custom Log, ประวัติการคัดลอก, ค้นหา, สำรอง/กู้คืนข้อมูล และ PowerShell Script สำหรับเปิดลิงก์งานทั้งหมดด้วย Google Chrome หรือ Microsoft Edge
 
-## Files
+## การใช้งาน
 
-- `index.html` — โครงสร้างหน้าเว็บ
-- `styles.css` — รูปแบบและ Responsive layout
-- `app.js` — ฟังก์ชันทั้งหมดของระบบ
+เปิดไฟล์ `index.html` ได้โดยตรง หรือ Deploy ผ่าน GitHub Pages/Vercel ได้ทันที
 
-เปิด `index.html` ผ่านเว็บเซิร์ฟเวอร์หรือ GitHub Pages เพื่อใช้งาน
+`index.html` เป็น Standalone HTML และไม่มีการเรียก `fetch()` เพื่อโหลด Application Payload จึงไม่เกิดข้อผิดพลาด `Failed to fetch` เมื่อเปิดไฟล์จากเครื่อง
+
+## ฟังก์ชันหลัก
+
+- ข้อความทั่วไป: สาเหตุ / แก้ไขโดย
+- Custom Log พร้อมตัวแปร `{{DATE}}` และ `{{TIME}}`
+- Device Hang, ติดต่อเจ้าหน้าที่ไม่ได้ และ Link Up
+- Copy All และประวัติการคัดลอก 30 รายการ
+- สำรองและกู้คืนข้อมูล JSON
+- Popup คัดลอก PowerShell Script สำหรับ Chrome และ Edge
+- Responsive สำหรับคอมพิวเตอร์ แท็บเล็ต และโทรศัพท์
