@@ -1,0 +1,55 @@
+name: Materialize NOC Log Center
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "bootstrap/app.part*.b64"
+      - ".github/workflows/materialize.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Restore index.html
+        shell: python
+        run: |
+          from pathlib import Path
+          import base64
+          import gzip
+
+          parts = sorted(Path("bootstrap").glob("app.part*.b64"))
+          if not parts:
+              raise SystemExit("No application payload parts found")
+
+          encoded = "".join(path.read_text(encoding="utf-8").strip() for path in parts)
+          html = gzip.decompress(base64.b64decode(encoded))
+
+          if not html.startswith(b"<!DOCTYPE html>"):
+              raise SystemExit("Invalid HTML payload")
+          if b"NOC LOG CENTER PRO" not in html:
+              raise SystemExit("Expected application title was not found")
+
+          Path("index.html").write_bytes(html)
+          print(f"Restored index.html: {len(html):,} bytes")
+
+      - name: Commit restored source
+        shell: bash
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "index.html is already current"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Materialize NOC Log Center PRO"
+          git push
