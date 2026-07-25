@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - "bootstrap/app.part*.b64"
+      - "browser-tools.css"
+      - "browser-tools.js"
       - ".github/workflows/materialize.yml"
   workflow_dispatch:
 
@@ -37,6 +39,14 @@ jobs:
           if b"NOC LOG CENTER PRO" not in html:
               raise SystemExit("Expected application title was not found")
 
+          css_link = b'  <link rel="stylesheet" href="browser-tools.css">\n'
+          js_script = b'  <script src="browser-tools.js"></script>\n'
+
+          if b'browser-tools.css' not in html:
+              html = html.replace(b"</head>", css_link + b"</head>", 1)
+          if b'browser-tools.js' not in html:
+              html = html.replace(b"</body>", js_script + b"</body>", 1)
+
           Path("index.html").write_bytes(html)
           print(f"Restored index.html: {len(html):,} bytes")
 
@@ -49,7 +59,7 @@ jobs:
           fi
 
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email "4189826+github-actions[bot]@users.noreply.github.com"
           git add index.html
           git commit -m "Materialize NOC Log Center PRO"
           git push
