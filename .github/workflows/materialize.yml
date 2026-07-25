@@ -20,7 +20,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Restore index.html
+      - name: Restore standalone index.html
         shell: python
         run: |
           from pathlib import Path
@@ -32,23 +32,32 @@ jobs:
               raise SystemExit("No application payload parts found")
 
           encoded = "".join(path.read_text(encoding="utf-8").strip() for path in parts)
-          html = gzip.decompress(base64.b64decode(encoded))
+          html = gzip.decompress(base64.b64decode(encoded)).decode("utf-8")
 
-          if not html.startswith(b"<!DOCTYPE html>"):
+          if not html.lstrip().startswith("<!DOCTYPE html>"):
               raise SystemExit("Invalid HTML payload")
-          if b"NOC LOG CENTER PRO" not in html:
+          if "NOC LOG CENTER PRO" not in html:
               raise SystemExit("Expected application title was not found")
 
-          css_link = b'  <link rel="stylesheet" href="browser-tools.css">\n'
-          js_script = b'  <script src="browser-tools.js"></script>\n'
+          css = Path("browser-tools.css").read_text(encoding="utf-8")
+          js = Path("browser-tools.js").read_text(encoding="utf-8").replace("</script", "<\\/script")
 
-          if b'browser-tools.css' not in html:
-              html = html.replace(b"</head>", css_link + b"</head>", 1)
-          if b'browser-tools.js' not in html:
-              html = html.replace(b"</body>", js_script + b"</body>", 1)
+          if 'id="browser-tools-style"' not in html:
+              html = html.replace(
+                  "</head>",
+                  f'  <style id="browser-tools-style">\n{css}\n</style>\n</head>',
+                  1,
+              )
 
-          Path("index.html").write_bytes(html)
-          print(f"Restored index.html: {len(html):,} bytes")
+          if 'id="browser-tools-script"' not in html:
+              html = html.replace(
+                  "</body>",
+                  f'  <script id="browser-tools-script">\n{js}\n</script>\n</body>',
+                  1,
+              )
+
+          Path("index.html").write_text(html, encoding="utf-8")
+          print(f"Restored standalone index.html: {len(html):,} characters")
 
       - name: Commit restored source
         shell: bash
@@ -59,7 +68,7 @@ jobs:
           fi
 
           git config user.name "github-actions[bot]"
-          git config user.email "4189826+github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
-          git commit -m "Materialize NOC Log Center PRO"
+          git commit -m "Materialize standalone NOC Log Center PRO"
           git push
