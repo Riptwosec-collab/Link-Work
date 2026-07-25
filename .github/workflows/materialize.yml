@@ -1,4 +1,4 @@
-name: Materialize NOC Log Center
+name: Build LinkWork Standalone
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Restore standalone index.html
+      - name: Build standalone LinkWork index
         shell: python
         run: |
           from pathlib import Path
@@ -36,8 +36,12 @@ jobs:
 
           if not html.lstrip().startswith("<!DOCTYPE html>"):
               raise SystemExit("Invalid HTML payload")
-          if "NOC LOG CENTER PRO" not in html:
-              raise SystemExit("Expected application title was not found")
+
+          # Rename the complete application while retaining compatibility
+          # with version-2 backup files created under the previous name.
+          html = html.replace("NOC LOG CENTER PRO", "LinkWork")
+          html = html.replace("NOC Log Center PRO", "LinkWork")
+          html = html.replace("noc-log-backup-", "linkwork-backup-")
 
           css = Path("browser-tools.css").read_text(encoding="utf-8")
           js = Path("browser-tools.js").read_text(encoding="utf-8").replace("</script", "<\\/script")
@@ -56,10 +60,15 @@ jobs:
                   1,
               )
 
-          Path("index.html").write_text(html, encoding="utf-8")
-          print(f"Restored standalone index.html: {len(html):,} characters")
+          if "LinkWork" not in html:
+              raise SystemExit("LinkWork title was not generated")
+          if "fetch(" in html:
+              raise SystemExit("Standalone index must not contain runtime fetch calls")
 
-      - name: Commit restored source
+          Path("index.html").write_text(html, encoding="utf-8")
+          print(f"Built standalone LinkWork index: {len(html):,} characters")
+
+      - name: Commit standalone index
         shell: bash
         run: |
           if git diff --quiet -- index.html; then
@@ -70,5 +79,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
-          git commit -m "Materialize standalone NOC Log Center PRO"
+          git commit -m "Build standalone LinkWork"
           git push
