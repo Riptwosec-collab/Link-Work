@@ -28,11 +28,14 @@
           return (await response.text()).trim();
         }));
         const binary = atob(parts.join(""));
-        const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+        const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
         const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
-        const html = await new Response(stream).text();
+        const sourceHtml = await new Response(stream).text();
+        const enhancedHtml = sourceHtml
+          .replace("</head>", '  <link rel="stylesheet" href="browser-tools.css">\n</head>')
+          .replace("</body>", '  <script src="browser-tools.js"></' + 'script>\n</body>');
         document.open();
-        document.write(html);
+        document.write(enhancedHtml);
         document.close();
       } catch (error) {
         document.getElementById("status").textContent = `โหลดระบบไม่สำเร็จ: ${error.message}`;
