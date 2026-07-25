@@ -1,109 +1,64 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#061326">
-  <title>Loading NOC Log Center PRO</title>
-  <style>
-    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #020914; color: #f4f8ff; font-family: system-ui, sans-serif; }
-    main { width: min(520px, calc(100% - 40px)); text-align: center; padding: 24px; }
-    .spinner { width: 42px; height: 42px; margin: 0 auto 16px; border: 4px solid rgba(99,199,255,.2); border-top-color: #63c7ff; border-radius: 50%; animation: spin .8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    p { color: #9bb0c9; line-height: 1.7; overflow-wrap: anywhere; }
-    .error { color: #ff9aa8; }
-    button { min-height: 42px; padding: 0 18px; border: 1px solid rgba(99,199,255,.6); border-radius: 12px; color: #fff; background: #0e5fae; cursor: pointer; font: inherit; font-weight: 700; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#061326">
+<title>LinkWork</title>
+<style>
+:root{--bg:#020914;--panel:#071a31;--panel2:#0b2543;--line:#235a8f;--blue:#55beff;--gold:#f5c96a;--green:#36d9a4;--red:#ff7185;--text:#f4f8ff;--muted:#9eb3ca;--r:18px}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% -10%,#123e72 0,transparent 34%),linear-gradient(145deg,#010712,#061326 55%,#020a15);color:var(--text);font-family:"Segoe UI",Tahoma,system-ui,sans-serif}button,input,textarea{font:inherit}.shell{width:min(1450px,calc(100% - 28px));margin:auto;padding:18px 0 48px}.glass{background:linear-gradient(145deg,rgba(12,38,70,.9),rgba(3,15,30,.94));border:1px solid rgba(72,161,255,.32);box-shadow:0 18px 48px rgba(0,0,0,.32);border-radius:24px}.top{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 22px}.brand{display:flex;align-items:center;gap:13px}.logo{width:50px;height:50px;display:grid;place-items:center;border:1px solid rgba(245,201,106,.55);border-radius:15px;color:var(--gold);font-size:23px;font-weight:900}.brand h1{margin:0;color:#fff1b8;font-size:clamp(1.35rem,3vw,2rem);letter-spacing:.04em}.brand p{margin:4px 0 0;color:var(--muted)}.clock{text-align:right;font-variant-numeric:tabular-nums}.clock b{display:block;color:var(--blue);font-size:1.25rem}.tools{margin-top:14px;padding:14px;display:grid;grid-template-columns:minmax(220px,1fr) repeat(6,auto);gap:9px}.input,.area{width:100%;border:1px solid rgba(84,177,255,.36);background:#020d1d;color:var(--text);border-radius:12px;padding:11px 13px;outline:0}.input:focus,.area:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,201,106,.13)}.btn{border:1px solid rgba(84,177,255,.42);background:linear-gradient(145deg,#124b7e,#09243f);color:#fff;border-radius:12px;min-height:44px;padding:0 14px;font-weight:750;cursor:pointer;transition:.15s}.btn:hover{transform:translateY(-1px);border-color:var(--blue)}.btn.gold{color:#081320;background:linear-gradient(135deg,#ffe49b,#d7a640);border-color:#ffe5a2}.btn.green{background:linear-gradient(135deg,#158b69,#0c5c48)}.btn.red{background:#5b1d2a;border-color:#a64456}.btn.chrome{background:linear-gradient(135deg,#1a7e46,#1765a8)}.btn.edge{background:linear-gradient(135deg,#0b82a8,#1466ba)}.stats{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}.stat{padding:11px 15px;border:1px solid rgba(84,177,255,.25);border-radius:14px;background:rgba(6,25,48,.75);color:var(--muted)}.stat b{color:#fff;margin-left:6px}.grid{margin-top:14px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.grid.list{grid-template-columns:1fr}.card{padding:17px;min-width:0}.wide{grid-column:1/-1}.head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:13px}.head h2{font-size:1rem;margin:0}.sub{color:var(--muted);font-size:.82rem;margin-top:4px}.badge{border:1px solid currentColor;border-radius:999px;padding:5px 9px;font-size:.72rem;font-weight:800;white-space:nowrap}.recovered{color:var(--green)}.pending{color:#ffd36d}.link{color:var(--blue)}.general{color:var(--gold)}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.label{display:block;font-size:.8rem;font-weight:750;margin-bottom:6px;color:#dbeaff}.preview{margin-top:11px;min-height:95px;padding:13px;border:1px solid rgba(84,177,255,.25);border-radius:13px;background:#020c1a;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65;color:#edf6ff}.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:11px;flex-wrap:wrap}.time{color:var(--gold);font-weight:800}.split{display:grid;grid-template-columns:1fr 1fr;gap:10px}.history{margin-top:14px;padding:17px}.history-list{display:grid;gap:8px;max-height:310px;overflow:auto}.history-item{border:1px solid rgba(84,177,255,.22);background:#030f20;border-radius:12px;padding:11px}.history-item small{color:var(--muted)}.history-item pre{white-space:pre-wrap;margin:7px 0 0;font:inherit;color:#eaf4ff;max-height:92px;overflow:hidden}.empty{color:var(--muted);text-align:center;padding:22px}.modal-bg{position:fixed;inset:0;z-index:20;display:none;place-items:center;padding:18px;background:rgba(0,5,13,.82);backdrop-filter:blur(7px)}.modal-bg.open{display:grid}.modal{width:min(900px,100%);max-height:88vh;padding:18px;overflow:auto}.modal-top{display:flex;justify-content:space-between;gap:12px;align-items:center}.modal h2{margin:0}.code{white-space:pre-wrap;overflow-wrap:anywhere;background:#010914;border:1px solid rgba(84,177,255,.3);border-radius:13px;padding:14px;line-height:1.55;color:#dff4ff;max-height:55vh;overflow:auto}.toast{position:fixed;right:16px;bottom:16px;z-index:40;max-width:380px;background:#071a31;border:1px solid var(--green);border-radius:13px;padding:12px 15px;box-shadow:0 16px 40px #0008;display:none}.toast.show{display:block}.hidden{display:none!important}@media(max-width:1100px){.tools{grid-template-columns:1fr 1fr 1fr}.tools .search{grid-column:1/-1}.grid{grid-template-columns:1fr 1fr}}@media(max-width:720px){.shell{width:min(100% - 16px,1450px);padding-top:8px}.top{align-items:flex-start;flex-direction:column}.clock{text-align:left}.tools{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.wide{grid-column:auto}.row,.split{grid-template-columns:1fr}.btn{width:100%}.actions{flex-direction:column}.head{align-items:flex-start}}
+</style>
 </head>
 <body>
-  <main>
-    <div class="spinner" id="spinner" aria-hidden="true"></div>
-    <h1>NOC Log Center PRO</h1>
-    <p id="status">กำลังโหลดระบบ...</p>
-    <button id="retryBtn" type="button" hidden>ลองใหม่</button>
-  </main>
-  <script>
-    (() => {
-      "use strict";
-
-      const RAW_BASE = "https://raw.githubusercontent.com/Riptwosec-collab/Link-Work/main/";
-      const status = document.getElementById("status");
-      const spinner = document.getElementById("spinner");
-      const retryBtn = document.getElementById("retryBtn");
-
-      async function fetchText(path) {
-        const candidates = [];
-
-        if (location.protocol === "http:" || location.protocol === "https:") {
-          candidates.push(new URL(path, document.baseURI).href);
-        }
-        candidates.push(RAW_BASE + path);
-
-        let lastError;
-        for (const url of [...new Set(candidates)]) {
-          try {
-            const response = await fetch(url, { cache: "no-store" });
-            if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-            return await response.text();
-          } catch (error) {
-            lastError = error;
-          }
-        }
-        throw lastError || new Error(`โหลด ${path} ไม่สำเร็จ`);
-      }
-
-      function escapeInlineScript(source) {
-        return source.replace(/<\/script/gi, "<\\/script");
-      }
-
-      async function loadApplication() {
-        retryBtn.hidden = true;
-        spinner.hidden = false;
-        status.classList.remove("error");
-        status.textContent = "กำลังโหลดระบบ...";
-
-        try {
-          const [part1, part2, toolsCss, toolsJs] = await Promise.all([
-            fetchText("bootstrap/app.part1.b64"),
-            fetchText("bootstrap/app.part2.b64"),
-            fetchText("browser-tools.css"),
-            fetchText("browser-tools.js")
-          ]);
-
-          const encoded = `${part1.trim()}${part2.trim()}`;
-          const binary = atob(encoded);
-          const bytes = Uint8Array.from(binary, character => character.charCodeAt(0));
-
-          if (typeof DecompressionStream !== "function") {
-            throw new Error("Browser เวอร์ชันนี้ไม่รองรับ DecompressionStream กรุณาอัปเดต Chrome หรือ Edge");
-          }
-
-          const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
-          const sourceHtml = await new Response(stream).text();
-
-          if (!sourceHtml.trimStart().startsWith("<!DOCTYPE html>")) {
-            throw new Error("ข้อมูลหน้าเว็บไม่ถูกต้อง");
-          }
-
-          const enhancedHtml = sourceHtml
-            .replace("</head>", `<style id="browser-tools-style">\n${toolsCss}\n</style>\n</head>`)
-            .replace("</body>", `<script id="browser-tools-script">\n${escapeInlineScript(toolsJs)}\n<\/script>\n</body>`);
-
-          document.open();
-          document.write(enhancedHtml);
-          document.close();
-        } catch (error) {
-          console.error(error);
-          spinner.hidden = true;
-          status.classList.add("error");
-          status.textContent = `โหลดระบบไม่สำเร็จ: ${error.message}`;
-          retryBtn.hidden = false;
-        }
-      }
-
-      retryBtn.addEventListener("click", loadApplication);
-      loadApplication();
-    })();
-  </script>
+<main class="shell">
+<header class="top glass"><div class="brand"><div class="logo">LW</div><div><h1>LinkWork</h1><p>Quick Copy · Work Links · NOC Log</p></div></div><div class="clock"><span id="date">--/--/--</span><b id="clock">--:--:--</b></div></header>
+<section class="tools glass">
+<input id="search" class="input search" placeholder="ค้นหา Log หรือข้อความ...">
+<button class="btn chrome" data-script="chrome">Script Chrome</button>
+<button class="btn edge" data-script="edge">Script Edge</button>
+<button class="btn" id="viewBtn">List / Grid</button>
+<button class="btn" id="exportBtn">สำรอง JSON</button>
+<button class="btn" id="importBtn">นำเข้า JSON</button>
+<button class="btn gold" id="copyAll">คัดลอกทั้งหมด</button>
+<input id="fileInput" type="file" accept="application/json" hidden>
+</section>
+<div class="stats"><div class="stat">จำนวน Log <b id="logCount">6</b></div><div class="stat">Copy วันนี้ <b id="copyCount">0</b></div><div class="stat">สถานะ <b style="color:var(--green)">พร้อมใช้งาน</b></div></div>
+<section class="grid" id="grid">
+<article class="card wide glass log" data-search="ข้อความทั่วไป สาเหตุ แก้ไข general"><div class="head"><div><h2>ข้อความทั่วไป</h2><div class="sub">กรอกสาเหตุและวิธีแก้ไข</div></div><span class="badge general">General</span></div><div class="row"><label><span class="label">สาเหตุ</span><input id="cause" class="input" placeholder="กรอกสาเหตุ"></label><label><span class="label">แก้ไขโดย</span><input id="fix" class="input" placeholder="กรอกวิธีแก้ไข"></label></div><pre class="preview" id="generalPreview"></pre><div class="actions"><button class="btn red" id="clearGeneral">ล้าง</button><button class="btn gold copy" data-id="general">คัดลอก</button></div></article>
+<article class="card wide glass log" data-search="custom log ข้อความกำหนดเอง"><div class="head"><div><h2>Custom Log</h2><div class="sub">รองรับ {{DATE}} และ {{TIME}}</div></div><span class="badge general">Custom</span></div><div class="row"><label><span class="label">ชื่อ Log</span><input id="customTitle" class="input" value="Custom Log"></label><label><span class="label">ข้อความ</span><textarea id="customMessage" class="area" rows="3" placeholder="ตัวอย่าง: ตรวจสอบแล้ว วันที่ {{DATE}} เวลา {{TIME}} น."></textarea></label></div><pre class="preview" id="customPreview">กรอกข้อความเพื่อสร้าง Log</pre><div class="actions"><button class="btn gold copy" data-id="custom">คัดลอก</button></div></article>
+<article class="card glass log" data-search="device hang switch router reboot recovered"><div class="head"><div><h2>Device Hang</h2><div class="sub">เวลาอัตโนมัติจากเครื่อง</div></div><span class="badge recovered">Recovered</span></div><div class="time" id="deviceTime">--.--</div><pre class="preview" id="devicePreview"></pre><div class="actions"><button class="btn gold copy" data-id="device">คัดลอก</button></div></article>
+<article class="card glass log" data-search="ติดต่อเจ้าหน้าที่ นอกเวลาทำการ pending"><div class="head"><div><h2>ไม่สามารถติดต่อเจ้าหน้าที่ได้</h2><div class="sub">นอกเวลาทำการ · เวลาคงที่ 08.30</div></div><span class="badge pending">Pending</span></div><div class="time">08.30</div><pre class="preview" id="contactPreview"></pre><div class="actions"><button class="btn gold copy" data-id="contact">คัดลอก</button></div></article>
+<article class="card glass log" data-search="link up วงจร กลับมาปกติ"><div class="head"><div><h2>วงจรกลับมาปกติ</h2><div class="sub">Link Up · เวลาอัตโนมัติ</div></div><span class="badge link">Link Up</span></div><div class="time" id="linkTime">--.--</div><div class="split"><div><pre class="preview" id="linkMonitorPreview"></pre><div class="actions"><button class="btn gold copy" data-id="linkMonitor">คัดลอก Link Up</button></div></div><div><pre class="preview" id="linkFixPreview"></pre><div class="actions"><button class="btn gold copy" data-id="linkFix">คัดลอกแก้ไขโดย</button></div></div></div></article>
+</section>
+<section class="history glass"><div class="head"><div><h2>ประวัติการคัดลอก</h2><div class="sub">เก็บล่าสุด 30 รายการใน Browser</div></div><button class="btn red" id="clearHistory">ล้างประวัติ</button></div><div class="history-list" id="history"></div></section>
+</main>
+<div class="modal-bg" id="modal"><div class="modal glass"><div class="modal-top"><div><h2 id="modalTitle">PowerShell Script</h2><p class="sub">คัดลอกแล้ววางใน PowerShell</p></div><button class="btn" id="closeModal">ปิด</button></div><pre class="code" id="scriptCode"></pre><div class="actions"><button class="btn gold" id="copyScript">คัดลอก Script</button></div></div></div>
+<div class="toast" id="toast"></div>
+<script>
+(()=>{"use strict";
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],pad=n=>String(n).padStart(2,"0"),KEY="linkwork.v1",HKEY="linkwork.history.v1",CKEY="linkwork.copy.v1",mem={},store={get:k=>{try{return localStorage.getItem(k)}catch{return mem[k]??null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch{mem[k]=v}},remove:k=>{try{localStorage.removeItem(k)}catch{delete mem[k]}}};
+const urls=["https://nocorion.rd.go.th/apps/platform/dashboard/54","https://dcnocwhd.rd.go.th/helpdesk/WebObjects/Helpdesk.woa/wa/TicketActions/view?tab=group","https://access.line.me/oauth2/v2.1/login?returnUri=%2Foauth2%2Fv2.1%2Fauthorize%2Fconsent%3Fresponse_type%3Dcode%26client_id%3D1576775644%26redirect_uri%3Dhttps%253A%252F%252Faccount.line.biz%252Flogin%252Fline-callback%253FredirectUri%253Dhttps%25253A%25252F%25252Faccount.line.biz%25252Foauth2%25252Fcallback%25253Fclient_id%25253D9%252526code_challenge%25253DZT0Ss3G0V9rh0G51S1GPeR1gL_XBjS3pKxB4R0ojW40%252526code_challenge_method%25253DS256%252526redirect_uri%25253Dhttps%2525253A%2525252F%2525252Fchat.line.biz%2525252Foauth2%2525252Flinebiz%2525252Fcallback%252526response_type%25253Dcode%252526state%25253D1iAJThLEJrHksL-Xdj1C4VU-oVuXM4SqNNUbQdZUp_c%2526disableLineAutoLogin%253Dfalse%26scope%3Dprofile%26state%3DlVXCPXsUmGUEsQX3tA0ZU2OVMAeFJXa&loginChannelId=1576775644&loginState=nrDGwtQXgO84UhGH0vyAkE#/","http://10.3.10.118/app68-1/admin/index.php","https://www.whois.com/whois/","https://workd.go.th/auth/login","https://network.rd.go.th/voip/book-voip.htm"];
+const scripts={chrome:{name:"Google Chrome",paths:['"$env:ProgramFiles\\Google\\Chrome\\Application\\chrome.exe"','"${env:ProgramFiles(x86)}\\Google\\Chrome\\Application\\chrome.exe"','"$env:LOCALAPPDATA\\Google\\Chrome\\Application\\chrome.exe"'],var:"chrome"},edge:{name:"Microsoft Edge",paths:['"${env:ProgramFiles(x86)}\\Microsoft\\Edge\\Application\\msedge.exe"','"$env:ProgramFiles\\Microsoft\\Edge\\Application\\msedge.exe"','"$env:LOCALAPPDATA\\Microsoft\\Edge\\Application\\msedge.exe"'],var:"edge"}};
+let activeScript="";const now=()=>new Date(),dateText=d=>`${pad(d.getDate())}/${pad(d.getMonth()+1)}/${String(d.getFullYear()+543).slice(-2)}`,timeDot=d=>`${pad(d.getHours())}.${pad(d.getMinutes())}`,timeColon=d=>`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("show"),2200)}
+async function copy(t){try{await navigator.clipboard.writeText(t)}catch{const a=document.createElement("textarea");a.value=t;document.body.append(a);a.select();document.execCommand("copy");a.remove()}incCopy();addHistory(t);toast("คัดลอกสำเร็จ")}
+function dayKey(){const d=now();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
+function getCopy(){const x=JSON.parse(store.get(CKEY)||"{}");return x.date===dayKey()?x.count||0:0}function incCopy(){store.set(CKEY,JSON.stringify({date:dayKey(),count:getCopy()+1}));$("#copyCount").textContent=getCopy()}
+function getHistory(){return JSON.parse(store.get(HKEY)||"[]")}function addHistory(text){const h=getHistory();h.unshift({text,at:new Date().toISOString()});store.set(HKEY,JSON.stringify(h.slice(0,30)));renderHistory()}
+function renderHistory(){const e=$("#history"),h=getHistory();e.innerHTML=h.length?h.map((x,i)=>`<div class="history-item"><small>${new Date(x.at).toLocaleString("th-TH")}</small><pre>${esc(x.text)}</pre><div class="actions"><button class="btn" data-recopy="${i}">คัดลอกซ้ำ</button></div></div>`).join(""):'<div class="empty">ยังไม่มีประวัติการคัดลอก</div>';$$('[data-recopy]').forEach(b=>b.onclick=()=>copy(h[+b.dataset.recopy].text))}
+function esc(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
+function previews(){const d=now(),dt=dateText(d),tm=timeDot(d);$("#date").textContent=dt;$("#clock").textContent=timeColon(d);$("#deviceTime").textContent=tm;$("#linkTime").textContent=tm;$("#generalPreview").textContent=`สาเหตุ : ${$("#cause").value}\nแก้ไขโดย : ${$("#fix").value}`;const cm=$("#customMessage").value;$("#customPreview").textContent=cm?cm.replaceAll("{{DATE}}",dt).replaceAll("{{TIME}}",tm):"กรอกข้อความเพื่อสร้าง Log";$("#devicePreview").textContent=`ตรวจสอบ Switch และ Router พบ log reboot อุปกรณ์ ปัจจุบันอุปกรณ์กลับมาใช้งานได้ปกติ วันที่ ${dt} เวลา ${tm} น.`;$("#contactPreview").textContent=`ไม่สามารถติดต่อเจ้าหน้าที่ประจำสำนักงานได้ เนื่องจากเป็นเวลานอกทำการ รอตรวจสอบอีกครั้งเวลาทำการ วันที่ ${dt} เวลา 08.30 น.`;$("#linkMonitorPreview").textContent=`มอนิเตอร์พบ Link up กลับมาวันที่ ${dt} เวลา ${tm} น.`;$("#linkFixPreview").textContent=`แก้ไขโดย : วงจรกลับมาปกติก่อนดำเนินการแก้ไข มอนิเตอร์พบ Link up กลับมาวันที่ ${dt} เวลา ${tm} น.`;save()}
+function text(id){if(id==="custom")return $("#customPreview").textContent;return $("#"+id+"Preview").textContent}
+function save(){store.set(KEY,JSON.stringify({cause:$("#cause").value,fix:$("#fix").value,title:$("#customTitle").value,message:$("#customMessage").value,view:$("#grid").classList.contains("list")?"list":"grid"}))}
+function load(){const x=JSON.parse(store.get(KEY)||"{}");$("#cause").value=x.cause||"";$("#fix").value=x.fix||"";$("#customTitle").value=x.title||"Custom Log";$("#customMessage").value=x.message||"";if(x.view==="list")$("#grid").classList.add("list")}
+function buildScript(type){const x=scripts[type],v=x.var,urlBlock=urls.map(u=>`"${u}"`).join(",\r\n"),pathBlock=x.paths.join(",\r\n");return `$urls = @(\r\n${urlBlock}\r\n)\r\n\r\n$${v} = @(\r\n${pathBlock}\r\n) | Where-Object { Test-Path $_ } | Select-Object -First 1\r\n\r\nif ($${v}) {\r\n    Start-Process $${v} -ArgumentList (@("--new-window") + $urls)\r\n} else {\r\n    Write-Host "ไม่พบ ${x.name}" -ForegroundColor Red\r\n}`}
+$$('[data-script]').forEach(b=>b.onclick=()=>{activeScript=buildScript(b.dataset.script);$("#modalTitle").textContent=`PowerShell Script · ${scripts[b.dataset.script].name}`;$("#scriptCode").textContent=activeScript;$("#modal").classList.add("open")});$("#closeModal").onclick=()=>$("#modal").classList.remove("open");$("#modal").onclick=e=>{if(e.target.id==="modal")e.currentTarget.classList.remove("open")};$("#copyScript").onclick=()=>copy(activeScript);
+$$('.copy').forEach(b=>b.onclick=()=>copy(text(b.dataset.id)));["cause","fix","customTitle","customMessage"].forEach(id=>$("#"+id).addEventListener("input",previews));$("#clearGeneral").onclick=()=>{$("#cause").value=$("#fix").value="";previews()};$("#clearHistory").onclick=()=>{if(confirm("ล้างประวัติทั้งหมดหรือไม่?")){store.remove(HKEY);renderHistory()}};$("#viewBtn").onclick=()=>{$("#grid").classList.toggle("list");save()};
+$("#search").oninput=e=>{const q=e.target.value.toLowerCase().trim();$$('.log').forEach(c=>c.classList.toggle("hidden",q&&!c.dataset.search.toLowerCase().includes(q)&&!c.textContent.toLowerCase().includes(q)))};
+$("#copyAll").onclick=()=>copy(["general","custom","device","contact","linkMonitor","linkFix"].map(text).filter(x=>x&&x!=="กรอกข้อความเพื่อสร้าง Log").join("\n\n--------------------\n\n"));
+$("#exportBtn").onclick=()=>{const blob=new Blob([JSON.stringify({app:"LinkWork",version:1,data:JSON.parse(store.get(KEY)||"{}"),history:getHistory()},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`linkwork-backup-${dayKey()}.json`;a.click();URL.revokeObjectURL(a.href)};$("#importBtn").onclick=()=>$("#fileInput").click();$("#fileInput").onchange=async e=>{try{const x=JSON.parse(await e.target.files[0].text());if(x.app!=="LinkWork")throw 0;store.set(KEY,JSON.stringify(x.data||{}));store.set(HKEY,JSON.stringify(x.history||[]));load();previews();renderHistory();toast("นำเข้าข้อมูลสำเร็จ")}catch{toast("ไฟล์สำรองไม่ถูกต้อง")}e.target.value=""};
+load();previews();renderHistory();$("#copyCount").textContent=getCopy();setInterval(previews,1000);
+})();
+</script>
 </body>
 </html>
