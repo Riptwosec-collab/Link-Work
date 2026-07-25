@@ -1,0 +1,116 @@
+.btn-browser {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-browser::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,.10) 48%, transparent 72%);
+  transform: translateX(-130%);
+  transition: transform .45s ease;
+  pointer-events: none;
+}
+
+.btn-browser:hover::after {
+  transform: translateX(130%);
+}
+
+.btn-chrome {
+  border-color: rgba(245, 201, 106, 0.52);
+  background: linear-gradient(145deg, rgba(70, 50, 14, 0.82), rgba(26, 31, 36, 0.92));
+}
+
+.btn-edge {
+  border-color: rgba(40, 215, 161, 0.48);
+  background: linear-gradient(145deg, rgba(7, 66, 73, 0.82), rgba(5, 28, 48, 0.92));
+}
+
+.script-modal {
+  width: min(940px, 100%);
+  max-height: min(88vh, 900px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.script-modal-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  padding-right: 46px;
+}
+
+.script-modal-copy {
+  margin-top: 16px;
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  border: 1px solid rgba(78, 161, 255, 0.30);
+  border-radius: 15px;
+  background: rgba(1, 9, 20, 0.90);
+  box-shadow: inset 0 0 28px rgba(42, 157, 255, 0.05);
+}
+
+.script-code {
+  margin: 0;
+  min-width: max-content;
+  padding: 18px;
+  color: #dff4ff;
+  font: 0.82rem/1.65 Consolas, "Cascadia Code", "Courier New", monospace;
+  white-space: pre;
+  tab-size: 4;
+  user-select: text;
+}
+
+.script-modal-note {
+  margin-top: 12px !important;
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: #d9e8fb !important;
+  background: rgba(42, 157, 255, 0.07);
+  border: 1px solid rgba(42, 157, 255, 0.18);
+  font-size: 0.82rem;
+}
+
+.script-modal-actions {
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.script-browser-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 11px;
+  border-radius: 999px;
+  color: var(--blue-2);
+  border: 1px solid rgba(99, 199, 255, 0.32);
+  background: rgba(42, 157, 255, 0.07);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+@media (max-width: 560px) {
+  .script-modal {
+    max-height: 92vh;
+    padding: 16px;
+  }
+
+  .script-code {
+    font-size: 0.74rem;
+    padding: 14px;
+  }
+
+  .script-modal-actions {
+    align-items: stretch;
+  }
+
+  .script-browser-tag {
+    width: 100%;
+    justify-content: center;
+  }
+}
