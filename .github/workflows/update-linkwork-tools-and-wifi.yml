@@ -1,0 +1,123 @@
+name: Update LinkWork tools and WiFi links
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/update-linkwork-tools-and-wifi.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update LinkWork
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          path = Path("index.html")
+          html = path.read_text(encoding="utf-8")
+
+          line_login = "https://access.line.me/oauth2/v2.1/login?returnUri=%2Foauth2%2Fv2.1%2Fauthorize%2Fconsent%3Fresponse_type%3Dcode%26client_id%3D1576775644%26redirect_uri%3Dhttps%253A%252F%252Faccount.line.biz%252Flogin%252Fline-callback%253FredirectUri%253Dhttps%25253A%25252F%25252Faccount.line.biz%25252Foauth2%25252Fcallback%25253Fclient_id%25253D9%252526code_challenge%25253DZT0Ss3G0V9rh0G51S1GPeR1gL_XBjS3pKxB4R0ojW40%252526code_challenge_method%25253DS256%252526redirect_uri%25253Dhttps%2525253A%2525252F%2525252Fchat.line.biz%2525252Foauth2%2525252Flinebiz%2525252Fcallback%252526response_type%25253Dcode%252526state%25253D1iAJThLEJrHksL-Xdj1C4VU-oVuXM4SqNNUbQdZUp_c%2526disableLineAutoLogin%253Dfalse%26scope%3Dprofile%26state%3DlVXCPXsUmGUEsQX3tA0ZU2OVMAeFJXa&loginChannelId=1576775644&loginState=nrDGwtQXgO84UhGH0vyAkE#/"
+
+          links = [
+              ("NOC", "NOC Orion Dashboard", "https://nocorion.rd.go.th/apps/platform/dashboard/54", "nocorion.rd.go.th", True),
+              ("HD", "DC NOC Helpdesk", "https://dcnocwhd.rd.go.th/helpdesk/WebObjects/Helpdesk.woa/wa/TicketActions/view?tab=group", "dcnocwhd.rd.go.th", True),
+              ("LINE", "LINE Official Account", line_login, "access.line.me", True),
+              ("APP", "แจ้งซ่อม", "http://10.3.10.118/app68-3/admin/admin.php", "10.3.10.118", True),
+              ("IP", "เช็ค IP", "https://www.whois.com/whois/", "whois.com", True),
+              ("WD", "WorkD Login", "https://workd.go.th/auth/login", "workd.go.th", True),
+              ("VOIP", "จองเบอร์ VoIP", "https://network.rd.go.th/voip/book-voip.htm", "network.rd.go.th", True),
+              ("HR", "รายชื่อบุคลากร", "https://hrapp2.rd.go.th/fperson2/", "hrapp2.rd.go.th", False),
+              ("WIFI", "คู่มือทุก WiFi Excel", "https://docs.google.com/spreadsheets/d/1bDr1bA0QrZRvgMKP9FLvGKJ0btsw09LEFa0gTH_6DEU/edit?gid=1976446373#gid=1976446373", "docs.google.com", False),
+              ("GUIDE", "คู่มือ WiFi", "https://rdsrv.rd.go.th/62760/wireless-lan-user-manual.html", "rdsrv.rd.go.th", False),
+              ("ADMIN", "ผู้ดูแลระบบงาน", "https://docs.google.com/spreadsheets/d/1t2nu_08J8M1rgqZCYiUJLCOpqB9cRnM-/edit?gid=1217639332#gid=1217639332", "docs.google.com", False),
+              ("MON", "Monthly", "http://10.19.170/monthly/", "10.19.170", False),
+          ]
+
+          cards = []
+          for icon, name, url, host, in_script in links:
+              script_attr = ' data-script-url="true"' if in_script else ''
+              cards.append(
+                  f'    <a class="work-link" href="{url}" target="_blank" rel="noopener noreferrer"{script_attr}>'
+                  f'<span class="link-icon">{icon}</span>'
+                  f'<span class="link-copy"><span class="link-name">{name}</span><span class="link-url">{host}</span></span>'
+                  f'<span class="link-arrow" aria-hidden="true">↗</span></a>'
+              )
+
+          links_section = '''<section class="work-links glass" aria-labelledby="workLinksTitle">
+            <div class="section-title"><div><h2 id="workLinksTitle">ลิงก์งาน</h2><p>กดเพื่อเปิดแต่ละระบบโดยตรงในแท็บใหม่</p></div></div>
+            <div class="links-grid">
+          ''' + "\n".join(cards) + '''
+            </div>
+          </section>'''
+
+          start = html.index('<section class="work-links glass"')
+          end = html.index('</section>', start) + len('</section>')
+          html = html[:start] + links_section + html[end:]
+
+          if 'class="script-tools glass"' not in html:
+              script_section = '''
+          <section class="script-tools glass" aria-labelledby="scriptToolsTitle">
+            <div class="section-title"><div><h2 id="scriptToolsTitle">Script เปิดลิงก์</h2><p>คัดลอก PowerShell Script สำหรับเปิดลิงก์ชุดเดิมพร้อมกัน</p></div></div>
+            <div class="tool-actions">
+              <button class="btn chrome" data-script="chrome" type="button">Script Chrome</button>
+              <button class="btn edge" data-script="edge" type="button">Script Edge</button>
+            </div>
+          </section>
+          '''
+              header_end = html.index('</header>') + len('</header>')
+              html = html[:header_end] + script_section + html[header_end:]
+
+          if '.btn.chrome{' not in html:
+              html = html.replace(
+                  '.btn.red{background:#5b1d2a;border-color:#a64456}',
+                  '.btn.red{background:#5b1d2a;border-color:#a64456}.btn.chrome{background:linear-gradient(135deg,#1a7e46,#1765a8)}.btn.edge{background:linear-gradient(135deg,#0b82a8,#1466ba)}',
+                  1,
+              )
+
+          if '.script-tools{' not in html:
+              extra_css = '''.script-tools{margin-top:14px;padding:17px}.tool-actions{display:flex;gap:10px;flex-wrap:wrap}.tool-actions .btn{min-width:180px}.modal-bg{position:fixed;inset:0;z-index:20;display:none;place-items:center;padding:18px;background:rgba(0,5,13,.82);backdrop-filter:blur(7px)}.modal-bg.open{display:grid}.modal{width:min(900px,100%);max-height:88vh;padding:18px;overflow:auto}.modal-top{display:flex;justify-content:space-between;gap:12px;align-items:center}.modal h2{margin:0}.code{white-space:pre-wrap;overflow-wrap:anywhere;background:#010914;border:1px solid rgba(84,177,255,.3);border-radius:13px;padding:14px;line-height:1.55;color:#dff4ff;max-height:55vh;overflow:auto}@media(max-width:720px){.tool-actions{flex-direction:column}.tool-actions .btn{width:100%;min-width:0}}
+          '''
+              html = html.replace('.work-links{margin-top:14px;padding:17px}', extra_css + '.work-links{margin-top:14px;padding:17px}', 1)
+
+          if 'id="modalTitle"' not in html:
+              modal = '''<div class="modal-bg" id="modal"><div class="modal glass"><div class="modal-top"><div><h2 id="modalTitle">PowerShell Script</h2><p class="sub">คัดลอกแล้ววางใน PowerShell</p></div><button class="btn" id="closeModal" type="button">ปิด</button></div><pre class="code" id="scriptCode"></pre><div class="actions"><button class="btn gold" id="copyScript" type="button">คัดลอก Script</button></div></div></div>
+          '''
+              html = html.replace('<div class="toast" id="toast"></div>', modal + '<div class="toast" id="toast"></div>', 1)
+
+          if 'const scripts={chrome:' not in html:
+              setup = r'''const urls=$$('[data-script-url]').map(a=>a.getAttribute("href"));
+          const scripts={chrome:{name:"Google Chrome",paths:['"$env:ProgramFiles\\Google\\Chrome\\Application\\chrome.exe"','"${env:ProgramFiles(x86)}\\Google\\Chrome\\Application\\chrome.exe"','"$env:LOCALAPPDATA\\Google\\Chrome\\Application\\chrome.exe"'],var:"chrome"},edge:{name:"Microsoft Edge",paths:['"${env:ProgramFiles(x86)}\\Microsoft\\Edge\\Application\\msedge.exe"','"$env:ProgramFiles\\Microsoft\\Edge\\Application\\msedge.exe"','"$env:LOCALAPPDATA\\Microsoft\\Edge\\Application\\msedge.exe"'],var:"edge"}};
+          let activeScript="";
+          '''
+              html = html.replace('const now=()=>new Date()', setup + 'const now=()=>new Date()', 1)
+
+          if 'function buildScript(type)' not in html:
+              handlers = r'''function buildScript(type){const x=scripts[type],v=x.var,urlBlock=urls.map(u=>`"${u}"`).join(",\r\n"),pathBlock=x.paths.join(",\r\n");return `$urls = @(\r\n${urlBlock}\r\n)\r\n\r\n$${v} = @(\r\n${pathBlock}\r\n) | Where-Object { Test-Path $_ } | Select-Object -First 1\r\n\r\nif ($${v}) {\r\n    Start-Process $${v} -ArgumentList (@("--new-window") + $urls)\r\n} else {\r\n    Write-Host "ไม่พบ ${x.name}" -ForegroundColor Red\r\n}`}
+          $$('[data-script]').forEach(b=>b.onclick=()=>{activeScript=buildScript(b.dataset.script);$("#modalTitle").textContent=`PowerShell Script · ${scripts[b.dataset.script].name}`;$("#scriptCode").textContent=activeScript;$("#modal").classList.add("open")});$("#closeModal").onclick=()=>$("#modal").classList.remove("open");$("#modal").onclick=e=>{if(e.target.id==="modal")e.currentTarget.classList.remove("open")};$("#copyScript").onclick=()=>copy(activeScript);
+          '''
+              html = html.replace("$$('.copy').forEach", handlers + "$$('.copy').forEach", 1)
+
+          path.write_text(html, encoding="utf-8")
+          PY
+
+      - name: Commit changes
+        shell: bash
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "No changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Add WiFi guide and system admin links"
+          git push
