@@ -27,6 +27,7 @@ jobs:
 
           replacements = {
               "http://10.19.170/monthly/": "http://10.1.9.170/monthly/",
+              ">10.19.170<": ">10.1.9.170<",
               "1bDr1bA0QrZRvgMKP9FLvGKJ0btsw09LEFa0gTH_6DEU": "1bDr1bA0QrZRvgMKP9FLvGKJ0btswO9LEFa0gTH_6DEU",
               "DC NOC Helpdesk": "Web ใบงาน",
               "NOC Orion Dashboard": "Solarwinds",
