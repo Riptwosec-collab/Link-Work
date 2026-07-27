@@ -1,0 +1,83 @@
+name: Update UIH table layout
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/update-uih-table-layout.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-uih-table:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show message column and compact copy button
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("index.html")
+          html = path.read_text(encoding="utf-8")
+
+          old_css = '.staff-table{width:100%;min-width:780px;border-collapse:separate;border-spacing:0}.staff-table th,.staff-table td{padding:11px 13px;border-right:1px solid rgba(151,187,218,.18);border-bottom:1px solid rgba(151,187,218,.18);vertical-align:middle}.staff-table th:last-child,.staff-table td:last-child{border-right:0}.staff-table tr:last-child td{border-bottom:0}.staff-table th{position:sticky;top:0;z-index:2;background:#06ad50;color:#fff;text-align:left;font-weight:900}.staff-table th:nth-child(2){text-align:center}.staff-table td:nth-child(2){text-align:center;color:#dcecff}.staff-table td:nth-child(3){width:210px;text-align:center}.staff-table tbody tr:nth-child(even){background:rgba(15,49,83,.36)}.staff-table tbody tr:hover{background:rgba(85,190,255,.10)}.staff-copy{min-width:160px}.staff-empty{color:var(--muted);text-align:center}'
+          new_css = '.staff-table{width:100%;min-width:1040px;border-collapse:separate;border-spacing:0}.staff-table th,.staff-table td{padding:10px 12px;border-right:1px solid rgba(151,187,218,.18);border-bottom:1px solid rgba(151,187,218,.18);vertical-align:middle}.staff-table th:last-child,.staff-table td:last-child{border-right:0}.staff-table tr:last-child td{border-bottom:0}.staff-table th{position:sticky;top:0;z-index:2;background:#06ad50;color:#fff;text-align:left;font-weight:900}.staff-table th:nth-child(2),.staff-table th:nth-child(4){text-align:center}.staff-table td:nth-child(2){text-align:center;color:#dcecff}.staff-table td:nth-child(3){min-width:340px;color:#eaf4ff;line-height:1.45;white-space:normal}.staff-table td:nth-child(4){width:86px;text-align:center}.staff-table tbody tr:nth-child(even){background:rgba(15,49,83,.36)}.staff-table tbody tr:hover{background:rgba(85,190,255,.10)}.staff-copy{width:auto!important;min-width:0;min-height:32px;padding:0 10px;border-radius:9px;font-size:.76rem}.staff-empty{color:var(--muted);text-align:center}'
+
+          old_header = '<thead><tr><th>ชื่อ-นามสกุล</th><th>Line ID</th><th>Copy</th></tr></thead>'
+          new_header = '<thead><tr><th>ชื่อ-นามสกุล</th><th>Line ID</th><th>ข้อความ</th><th>Copy</th></tr></thead>'
+
+          old_render = 'function renderStaff(){const body=$("#staffTableBody");body.innerHTML=uihStaff.map((x,i)=>`<tr><td>${x.name?esc(x.name):"&nbsp;"}</td><td>${x.line?esc(x.line):"&nbsp;"}</td><td>${x.copy?`<button class="btn gold staff-copy" type="button" data-staff-copy="${i}">${esc(x.copyLabel||"Copy")}</button>`:\'<span class="staff-empty">—</span>\'}</td></tr>`).join("");$$(\'[data-staff-copy]\').forEach(b=>b.onclick=()=>copy(uihStaff[+b.dataset.staffCopy].copy))}'
+          new_render = 'function renderStaff(){const body=$("#staffTableBody");body.innerHTML=uihStaff.map((x,i)=>`<tr><td>${x.name?esc(x.name):"&nbsp;"}</td><td>${x.line?esc(x.line):"&nbsp;"}</td><td>${x.copy?esc(x.copy):\'<span class="staff-empty">—</span>\'}</td><td>${x.copy?`<button class="btn gold staff-copy" type="button" data-staff-copy="${i}">${esc(x.copyLabel||"Copy")}</button>`:\'<span class="staff-empty">—</span>\'}</td></tr>`).join("");$$(\'[data-staff-copy]\').forEach(b=>b.onclick=()=>copy(uihStaff[+b.dataset.staffCopy].copy))}'
+
+          replacements = [
+              (old_css, new_css, "UIH table CSS"),
+              (old_header, new_header, "UIH table header"),
+              (old_render, new_render, "UIH render function"),
+          ]
+
+          for old, new, label in replacements:
+              if old not in html:
+                  raise SystemExit(f"Anchor not found: {label}")
+              html = html.replace(old, new, 1)
+
+          required = [
+              '<th>ข้อความ</th><th>Copy</th>',
+              '.staff-table td:nth-child(4)',
+              'min-height:32px',
+              '${x.copy?esc(x.copy)',
+          ]
+          missing = [item for item in required if item not in html]
+          if missing:
+              raise SystemExit(f"Missing UIH layout markers: {missing}")
+
+          path.write_text(html, encoding="utf-8")
+
+      - name: Validate JavaScript
+        shell: python
+        run: |
+          from pathlib import Path
+          html = Path("index.html").read_text(encoding="utf-8")
+          start = html.index("<script>") + len("<script>")
+          end = html.index("</script>", start)
+          Path("/tmp/linkwork.js").write_text(html[start:end], encoding="utf-8")
+
+      - name: Check JavaScript syntax
+        run: node --check /tmp/linkwork.js
+
+      - name: Commit changes
+        shell: bash
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "index.html is already current"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Show UIH copy text in fourth-column layout"
+          git push
