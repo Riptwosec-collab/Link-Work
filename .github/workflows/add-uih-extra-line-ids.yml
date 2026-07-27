@@ -1,0 +1,133 @@
+name: Add additional UIH contacts
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/add-uih-extra-line-ids.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-uih-contacts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Add or update UIH contacts
+        shell: python
+        run: |
+          from pathlib import Path
+          import json
+          import re
+
+          path = Path("index.html")
+          html = path.read_text(encoding="utf-8")
+
+          contacts = [
+              ("เดชา", "Fb888"),
+              ("ปาริวัฒน์", "DOME"),
+              ("สนาน", "สนาน"),
+              ("อรรถพันธ์", "arms ผู้ตื่นรึยังนะ"),
+              ("ชัยนันท์", "Chain"),
+          ]
+
+          start_token = "const uihStaff=["
+          end_token = "];\nlet activeScript"
+          start = html.find(start_token)
+          end = html.find(end_token, start)
+          if start < 0 or end < 0:
+              raise SystemExit("UIH staff array was not found")
+
+          block_start = start + len(start_token)
+          block = html[block_start:end]
+
+          for short_name, line_id in contacts:
+              copy_text = f"เจ้าหน้าที่ UIH คุณ{short_name} แจ้งว่า "
+              lines = block.splitlines()
+              found = False
+
+              for i, row in enumerate(lines):
+                  name_match = re.search(r'name:"([^"]*)"', row)
+                  if not name_match or short_name not in name_match.group(1):
+                      continue
+
+                  row = re.sub(
+                      r'line:"[^"]*"',
+                      "line:" + json.dumps(line_id, ensure_ascii=False),
+                      row,
+                      count=1,
+                  )
+                  row = re.sub(
+                      r'copy:"[^"]*"',
+                      "copy:" + json.dumps(copy_text, ensure_ascii=False),
+                      row,
+                      count=1,
+                  )
+                  lines[i] = row
+                  found = True
+                  print(f"Updated existing UIH contact: {short_name}")
+                  break
+
+              if found:
+                  block = "\n".join(lines)
+                  continue
+
+              new_row = (
+                  "\n{name:"
+                  + json.dumps(short_name, ensure_ascii=False)
+                  + ",line:"
+                  + json.dumps(line_id, ensure_ascii=False)
+                  + ",copy:"
+                  + json.dumps(copy_text, ensure_ascii=False)
+                  + "},"
+              )
+
+              special_row = '\n{name:"",line:"",copy:"เจ้าหน้าที่ UIH คุณชัยยุทธ แจ้งว่า '
+              insert_at = block.find(special_row)
+              if insert_at < 0:
+                  insert_at = len(block)
+              block = block[:insert_at] + new_row + block[insert_at:]
+              print(f"Added new UIH contact: {short_name}")
+
+          html = html[:block_start] + block + html[end:]
+
+          for short_name, line_id in contacts:
+              required = [
+                  f'name:"{short_name}"',
+                  f'line:"{line_id}"',
+                  f'copy:"เจ้าหน้าที่ UIH คุณ{short_name} แจ้งว่า "',
+              ]
+              missing = [marker for marker in required if marker not in html]
+              if missing:
+                  raise SystemExit(f"Missing markers for {short_name}: {missing}")
+
+          path.write_text(html, encoding="utf-8")
+
+      - name: Validate JavaScript
+        shell: python
+        run: |
+          from pathlib import Path
+          html = Path("index.html").read_text(encoding="utf-8")
+          start = html.index("<script>") + len("<script>")
+          end = html.index("</script>", start)
+          Path("/tmp/linkwork.js").write_text(html[start:end], encoding="utf-8")
+
+      - name: Check JavaScript syntax
+        run: node --check /tmp/linkwork.js
+
+      - name: Commit changes
+        shell: bash
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "index.html is already current"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Add five UIH contacts and copy messages"
+          git push
