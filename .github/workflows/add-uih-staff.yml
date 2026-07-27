@@ -1,0 +1,145 @@
+name: Add UIH staff directory
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/add-uih-staff.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-uih-directory:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Add UIH staff button, table and copy actions
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("index.html")
+          html = path.read_text(encoding="utf-8")
+
+          if 'id="staffModal"' in html:
+              print("UIH staff directory is already installed")
+              raise SystemExit(0)
+
+          css_anchor = '.modal h2{margin:0}.code{white-space:pre-wrap;overflow-wrap:anywhere;background:#010914;border:1px solid rgba(84,177,255,.3);border-radius:13px;padding:14px;line-height:1.55;color:#dff4ff;max-height:55vh;overflow:auto}'
+          css_extra = '.work-link[type="button"]{width:100%;cursor:pointer;text-align:left}.staff-modal{width:min(1120px,100%)}.staff-table-wrap{overflow:auto;border:1px solid rgba(84,177,255,.28);border-radius:14px;background:#020c1a}.staff-table{width:100%;min-width:780px;border-collapse:separate;border-spacing:0}.staff-table th,.staff-table td{padding:11px 13px;border-right:1px solid rgba(151,187,218,.18);border-bottom:1px solid rgba(151,187,218,.18);vertical-align:middle}.staff-table th:last-child,.staff-table td:last-child{border-right:0}.staff-table tr:last-child td{border-bottom:0}.staff-table th{position:sticky;top:0;z-index:2;background:#06ad50;color:#fff;text-align:left;font-weight:900}.staff-table th:nth-child(2){text-align:center}.staff-table td:nth-child(2){text-align:center;color:#dcecff}.staff-table td:nth-child(3){width:210px;text-align:center}.staff-table tbody tr:nth-child(even){background:rgba(15,49,83,.36)}.staff-table tbody tr:hover{background:rgba(85,190,255,.10)}.staff-copy{min-width:160px}.staff-empty{color:var(--muted);text-align:center}.staff-note{margin:0 0 12px;color:var(--muted);font-size:.84rem}'
+          if css_anchor not in html:
+              raise SystemExit("CSS anchor not found")
+          html = html.replace(css_anchor, css_anchor + css_extra, 1)
+
+          monthly_anchor = '    <a class="work-link" href="http://10.1.9.170/monthly/" target="_blank" rel="noopener noreferrer"><span class="link-icon">MON</span><span class="link-copy"><span class="link-name">Monthly</span><span class="link-url">10.1.9.170</span></span><span class="link-arrow" aria-hidden="true">↗</span></a>'
+          staff_button = '    <button class="work-link" id="openStaffModal" type="button"><span class="link-icon">UIH</span><span class="link-copy"><span class="link-name">รายชื่อ เจ้าหน้าที่ UIH</span><span class="link-url">รายชื่อ · Line ID · Copy</span></span><span class="link-arrow" aria-hidden="true">›</span></button>\n'
+          if monthly_anchor not in html:
+              raise SystemExit("Monthly link anchor not found")
+          html = html.replace(monthly_anchor, staff_button + monthly_anchor, 1)
+
+          toast_anchor = '<div class="toast" id="toast"></div>'
+          staff_modal = '''<div class="modal-bg" id="staffModal">
+          <div class="modal glass staff-modal">
+            <div class="modal-top"><div><h2>รายชื่อ เจ้าหน้าที่ UIH</h2><p class="sub">ชื่อ-นามสกุล · Line ID · ข้อความแจ้งงาน</p></div><button class="btn" id="closeStaffModal" type="button">ปิด</button></div>
+            <p class="staff-note">กดปุ่ม Copy เพื่อคัดลอกข้อความ “เจ้าหน้าที่ UIH คุณ… แจ้งว่า”</p>
+            <div class="staff-table-wrap"><table class="staff-table"><thead><tr><th>ชื่อ-นามสกุล</th><th>Line ID</th><th>Copy</th></tr></thead><tbody id="staffTableBody"></tbody></table></div>
+          </div>
+          </div>
+          <div class="toast" id="toast"></div>'''
+          if toast_anchor not in html:
+              raise SystemExit("Toast anchor not found")
+          html = html.replace(toast_anchor, staff_modal, 1)
+
+          active_anchor = 'let activeScript="";'
+          staff_data = '''const uihStaff=[
+          {name:"ณรงค์กรณ์ อุทานวรพจน์",line:"November N uniform",copy:"เจ้าหน้าที่ UIH คุณณรงค์กรณ์ แจ้งว่า "},
+          {name:"กนกอร ตันทะเสน",line:"🌷Y-u-I🌷",copy:"เจ้าหน้าที่ UIH คุณกนกอร แจ้งว่า "},
+          {name:"ไพฑูรย์ โง้วสกุล",line:"Paitoon®",copy:"เจ้าหน้าที่ UIH คุณไพฑูรย์ แจ้งว่า "},
+          {name:"ธัญญาศิริ ศศิเมธาสิทธิ์",line:"ann•_•ann",copy:"เจ้าหน้าที่ UIH คุณธัญญาศิริ แจ้งว่า "},
+          {name:"ศิโรรัตน์ กล้าแก้วกล้า",line:"SiroJan",copy:""},
+          {name:"พิมพ์มาดา สุทธารส",line:"(◕‿◕✿)Phimmada(◕‿◕✿)",copy:"เจ้าหน้าที่ UIH คุณพิมพมาดา แจ้งว่า "},
+          {name:"ณฤดี ลงประเสริฐสกุล",line:"👩‍✈️ โชเปีย 👨‍✈️ โชแปง 👶 โชปาย",copy:""},
+          {name:"จิราภรณ์ แววบุตร",line:"Nueng_Jiraporn556",copy:"เจ้าหน้าที่ UIH คุณจิราพร แจ้งว่า "},
+          {name:"อุไรวรรณ สิโรบล",line:"Ople^_^CC",copy:""},
+          {name:"ฉัตรทิพย์ กักเอี่ยม",line:"Chattip~UIH ✽",copy:"เจ้าหน้าที่ UIH คุณฉัตรทิพย์ แจ้งว่า "},
+          {name:"พิมพ์ใจ นครจันทร์",line:"ออยหย่อยยย",copy:"เจ้าหน้าที่ UIH คุณพิมพ์ใจ แจ้งว่า "},
+          {name:"ธิติพันธ์ ทองน้อย",line:"Kham",copy:""},
+          {name:"จุไรรัตน์ โง้วสกุล",line:"Pl@Tong ✣",copy:"เจ้าหน้าที่ UIH คุณจุไรรัตน์ แจ้งว่า "},
+          {name:"พรสิงห์ โชคงามวงศ์",line:"พรสิงห์",copy:"เจ้าหน้าที่ UIH คุณพรสิงห์ แจ้งว่า "},
+          {name:"มลฤดี ชิณธรรม",line:"Ⓜ_©hin",copy:"เจ้าหน้าที่ UIH คุณมลฤดี แจ้งว่า "},
+          {name:"วิฑวัสซ์ พลวรรณาภา",line:"Kutar(UIH)",copy:"เจ้าหน้าที่ UIH คุณวิฑวัสซ์ แจ้งว่า "},
+          {name:"ชิษณุพงศ์ ปิติธีรเศรษฐ์",line:"ohchittt",copy:""},
+          {name:"สุทธิคุณ โนทะ",line:"Suttikun",copy:""},
+          {name:"จีราวัช นาคง",line:"Geerawat #ตัวตุ่น",copy:"เจ้าหน้าที่ UIH คุณจีราวัช แจ้งว่า "},
+          {name:"สรชัย ยอดสินธุ์",line:"Edioz",copy:"เจ้าหน้าที่ UIH คุณสรชัย แจ้งว่า "},
+          {name:"พิชิต ทับคล้าย",line:"chit_aaa",copy:"เจ้าหน้าที่ UIH คุณพิชิต แจ้งว่า "},
+          {name:"ณรงค์กรณ์ อุทานวรพจน์",line:"November N uniform",copy:"เจ้าหน้าที่ UIH คุณณรงค์กรณ์ แจ้งว่า "},
+          {name:"",line:"",copy:"เจ้าหน้าที่ UIH คุณชัยยุทธ แจ้งว่า ",copyLabel:"Copy ชัยยุทธ"},
+          {name:"",line:"",copy:"เจ้าหน้าที่ UIH คุณเจษฏา แจ้งว่า ",copyLabel:"Copy เจษฏา"}
+          ];
+          let activeScript="";'''
+          if active_anchor not in html:
+              raise SystemExit("JavaScript activeScript anchor not found")
+          html = html.replace(active_anchor, staff_data, 1)
+
+          build_anchor = 'function buildScript(type)'
+          render_staff = '''function renderStaff(){const body=$("#staffTableBody");body.innerHTML=uihStaff.map((x,i)=>`<tr><td>${x.name?esc(x.name):"&nbsp;"}</td><td>${x.line?esc(x.line):"&nbsp;"}</td><td>${x.copy?`<button class="btn gold staff-copy" type="button" data-staff-copy="${i}">${esc(x.copyLabel||"Copy")}</button>`:'<span class="staff-empty">—</span>'}</td></tr>`).join("");$$('[data-staff-copy]').forEach(b=>b.onclick=()=>copy(uihStaff[+b.dataset.staffCopy].copy))}
+          function buildScript(type)'''
+          if build_anchor not in html:
+              raise SystemExit("buildScript anchor not found")
+          html = html.replace(build_anchor, render_staff, 1)
+
+          copy_anchor = '$$(\'.copy\').forEach(b=>b.onclick=()=>copy(text(b.dataset.id)));'
+          staff_handlers = '''$("#openStaffModal").onclick=()=>$("#staffModal").classList.add("open");$("#closeStaffModal").onclick=()=>$("#staffModal").classList.remove("open");$("#staffModal").onclick=e=>{if(e.target.id==="staffModal")e.currentTarget.classList.remove("open")};document.addEventListener("keydown",e=>{if(e.key==="Escape"){$("#modal").classList.remove("open");$("#staffModal").classList.remove("open")}});
+          $$('.copy').forEach(b=>b.onclick=()=>copy(text(b.dataset.id)));'''
+          if copy_anchor not in html:
+              raise SystemExit("Copy handler anchor not found")
+          html = html.replace(copy_anchor, staff_handlers, 1)
+
+          init_anchor = 'load();previews();renderHistory();$("#copyCount").textContent=getCopy();setInterval(previews,1000);'
+          init_new = 'renderStaff();load();previews();renderHistory();$("#copyCount").textContent=getCopy();setInterval(previews,1000);'
+          if init_anchor not in html:
+              raise SystemExit("Initialisation anchor not found")
+          html = html.replace(init_anchor, init_new, 1)
+
+          required = [
+              'id="staffModal"',
+              'id="openStaffModal"',
+              'เจ้าหน้าที่ UIH คุณชัยยุทธ แจ้งว่า ',
+              'เจ้าหน้าที่ UIH คุณเจษฏา แจ้งว่า ',
+              'id="staffTableBody"',
+          ]
+          missing = [item for item in required if item not in html]
+          if missing:
+              raise SystemExit(f"Missing required UIH markers: {missing}")
+
+          path.write_text(html, encoding="utf-8")
+
+      - name: Validate JavaScript
+        shell: python
+        run: |
+          from pathlib import Path
+          html = Path("index.html").read_text(encoding="utf-8")
+          start = html.index("<script>") + len("<script>")
+          end = html.index("</script>", start)
+          Path("/tmp/linkwork.js").write_text(html[start:end], encoding="utf-8")
+
+      - name: Check JavaScript syntax
+        run: node --check /tmp/linkwork.js
+
+      - name: Commit changes
+        shell: bash
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "index.html is already current"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Add UIH staff directory and copy messages"
+          git push
