@@ -1,0 +1,59 @@
+name: Update latest LinkWork links
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/update-latest-work-links.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-links:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update links and button names
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("index.html")
+          html = path.read_text(encoding="utf-8")
+
+          replacements = {
+              "http://10.19.170/monthly/": "http://10.1.9.170/monthly/",
+              "1bDr1bA0QrZRvgMKP9FLvGKJ0btsw09LEFa0gTH_6DEU": "1bDr1bA0QrZRvgMKP9FLvGKJ0btswO9LEFa0gTH_6DEU",
+              "DC NOC Helpdesk": "Web ใบงาน",
+              "NOC Orion Dashboard": "Solarwinds",
+              "https://nocorion.rd.go.th/apps/platform/dashboard/54": "https://nocorion.rd.go.th/Orion/Login.aspx?ReturnUrl=%2fapps%2fplatform%2fdashboard%2f54",
+          }
+
+          changed = False
+          for old, new in replacements.items():
+              if old in html:
+                  html = html.replace(old, new)
+                  changed = True
+
+          if changed:
+              path.write_text(html, encoding="utf-8")
+          else:
+              print("No replacements were needed")
+
+      - name: Commit changes
+        shell: bash
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "index.html is already current"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Update Solarwinds, work order, WiFi and monthly links"
+          git push
