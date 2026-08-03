@@ -1,0 +1,70 @@
+name: Remove duplicate owner intro card
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/remove-owner-intro-card.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-owner-popup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Remove duplicated intro card
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          path = Path("index.html")
+          html = path.read_text(encoding="utf-8")
+
+          pattern = re.compile(
+              r'const ownerItems=\[\{"title":\s*"MA OWNER - ใหม่ล่าสุด".*?\},\s*\{"title":\s*"ผู้ดูแล: ธีรวีร์"',
+              re.S,
+          )
+          replacement = 'const ownerItems=[{"title": "ผู้ดูแล: ธีรวีร์"'
+
+          updated, count = pattern.subn(replacement, html, count=1)
+          if count == 0:
+              if 'const ownerItems=[{"title": "ผู้ดูแล: ธีรวีร์"' in html:
+                  print("Duplicate intro card is already removed")
+                  raise SystemExit(0)
+              raise SystemExit("Owner intro card pattern not found")
+
+          if '"title": "MA OWNER - ใหม่ล่าสุด"' in updated:
+              raise SystemExit("Duplicate owner intro card remains")
+
+          path.write_text(updated, encoding="utf-8")
+
+      - name: Validate JavaScript
+        shell: python
+        run: |
+          from pathlib import Path
+          html = Path("index.html").read_text(encoding="utf-8")
+          start = html.index("<script>") + len("<script>")
+          end = html.index("</script>", start)
+          Path("/tmp/linkwork.js").write_text(html[start:end], encoding="utf-8")
+
+      - name: Check JavaScript syntax
+        run: node --check /tmp/linkwork.js
+
+      - name: Commit changes
+        shell: bash
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "index.html is already current"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Remove duplicate MA owner intro card"
+          git push
