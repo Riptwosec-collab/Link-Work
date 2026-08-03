@@ -1,0 +1,40 @@
+or:pointer;text-align:left}.staff-modal{width:min(1120px,100%)}.staff-table-wrap{overflow:auto;border:1px solid rgba(84,177,255,.28);border-radius:14px;background:#020c1a}.staff-table{width:100%;min-width:1040px;border-collapse:separate;border-spacing:0}.staff-table th,.staff-table td{padding:10px 12px;border-right:1px solid rgba(151,187,218,.18);border-bottom:1px solid rgba(151,187,218,.18);vertical-align:middle}.staff-table th:last-child,.staff-table td:last-child{border-right:0}.staff-table tr:last-child td{border-bottom:0}.staff-table th{position:sticky;top:0;z-index:2;background:#06ad50;color:#fff;text-align:left;font-weight:900}.staff-table th:nth-child(2),.staff-table th:nth-child(4){text-align:center}.staff-table td:nth-child(2){text-align:center;color:#dcecff}.staff-table td:nth-child(3){min-width:340px;color:#eaf4ff;line-height:1.45;white-space:normal}.staff-table td:nth-child(4){width:86px;text-align:center}.staff-table tbody tr:nth-child(even){background:rgba(15,49,83,.36)}.staff-table tbody tr:hover{background:rgba(85,190,255,.10)}.staff-copy{width:auto!important;min-width:0;min-height:32px;padding:0 10px;border-radius:9px;font-size:.76rem}.staff-empty{color:var(--muted);text-align:center}.staff-note{margin:0 0 12px;color:var(--muted);font-size:.84rem}
+    .quick-tools{margin-top:14px}.quick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}.quick-grid .work-link{width:100%;cursor:pointer;text-align:left}.message-modal{width:min(1000px,100%)}.owner-modal{width:min(1180px,100%)}.message-list{display:grid;gap:12px}.message-card{padding:14px;border:1px solid rgba(84,177,255,.26);border-radius:14px;background:#020c1a}.message-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}.message-card h3{margin:0;font-size:1rem;color:#eaf4ff}.message-card pre{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65;color:#dcecff;font:inherit}.message-card .btn{flex:0 0 auto;min-width:84px}.message-card.notice{border-color:rgba(245,201,106,.46);background:linear-gradient(145deg,rgba(79,55,8,.34),rgba(2,12,26,.96))}.message-card.alert{border-color:rgba(255,113,133,.48);background:linear-gradient(145deg,rgba(82,20,35,.34),rgba(2,12,26,.96))}#ownerList{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:900px){#ownerList{grid-template-columns:1fr}}@media(max-width:620px){.message-card-head{flex-direction:column}.message-card .btn{width:100%}}
+    .toast{position:fixed;right:16px;bottom:16px;z-index:40;max-width:380px;background:#071a31;border:1px solid var(--green);border-radius:13px;padding:12px 15px;box-shadow:0 16px 40px #0008;display:none}.toast.show{display:block}
+    @media(max-width:1100px){.grid,.links-grid{grid-template-columns:1fr 1fr}} @media(max-width:720px){.shell{width:min(100% - 16px,1450px);padding-top:8px}.top{align-items:flex-start;flex-direction:column}.clock{text-align:left}.grid,.links-grid,.row,.split{grid-template-columns:1fr}.wide{grid-column:auto}.btn{width:100%}.tool-actions,.actions{flex-direction:column}.head,.section-title,.modal-top{align-items:flex-start;flex-direction:column}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="top glass">
+      <div class="brand"><div class="logo">LW</div><div><h1>LinkWork</h1><p>Quick Copy · Work Links · NOC Log</p></div></div>
+      <div class="clock"><span id="date">--/--/--</span><b id="clock">--:--:--</b></div>
+    </header>
+
+    <section class="section glass" aria-labelledby="scriptToolsTitle">
+      <div class="section-title"><div><h2 id="scriptToolsTitle">Script เปิดลิงก์</h2><p>คัดลอก PowerShell Script สำหรับเปิดหลายลิงก์พร้อมกัน</p></div></div>
+      <div class="tool-actions">
+        <button class="btn chrome" data-script="chrome" type="button">Script Chrome</button>
+        <button class="btn edge" data-script="edge" type="button">Script Edge</button>
+      </div>
+    </section>
+
+    <section class="section glass" aria-labelledby="workLinksTitle">
+      <div class="section-title"><div><h2 id="workLinksTitle">ลิงก์งาน</h2><p>กดเพื่อเปิดแต่ละระบบโดยตรงในแท็บใหม่</p></div></div>
+      <div class="links-grid" id="linksGrid"></div>
+    </section>
+
+    <section class="section glass quick-tools" aria-labelledby="quickToolsTitle">
+      <div class="section-title"><div><h2 id="quickToolsTitle">ข้อความใช้บ่อย</h2><p>เปิดรายการแล้วกด Copy แยกแต่ละข้อความ</p></div></div>
+      <div class="quick-grid">
+        <button class="work-link" id="openStaffModal" type="button"><span class="link-icon">UIH</span><span class="link-copy"><span class="link-name">รายชื่อเจ้าหน้าที่ UIH</span><span class="link-url">ชื่อ · Line ID · ข้อความ · Copy</span></span><span class="link-arrow">›</span></button>
+        <button class="work-link" id="openAdviceModal" type="button"><span class="link-icon">TIP</span><span class="link-copy"><span class="link-name">แนะนำเจ้าหน้าที่</span><span class="link-url">ขั้นตอนและข้อความแนะนำ</span></span><span class="link-arrow">›</span></button>
+        <button class="work-link" id="openConfigModal" type="button"><span class="link-icon">CFG</span><span class="link-copy"><span class="link-name">Config ใช้บ่อย</span><span class="link-url">Cisco · Windows · Troubleshooting</span></span><span class="link-arrow">›</span></button>
+        <button class="work-link" id="openOwnerModal" type="button"><span class="link-icon">PAK</span><span class="link-copy"><span class="link-name">คนดูแลแต่ละ Pak</span><span class="link-url">MA Owner · CM · PM</span></span><span class="link-arrow">›</span></button>
+        <button class="work-link" id="openLanMaModal" type="button"><span class="link-icon">LAN</span><span class="link-copy"><span class="link-name">หน่วยงานที่จุด LAN ไม่อยู่ใน MA</span><span class="link-url">รายชื่อหน่วยงาน · หมายเหตุ</span></span><span class="link-arrow">›</span></button>
+      </div>
+    </section>
+
+    <div class="stats">
+      <div class="stat">จำนวน Log <b>6</b></div>
+      <div clas
