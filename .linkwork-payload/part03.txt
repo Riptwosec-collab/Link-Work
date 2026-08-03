@@ -1,0 +1,87 @@
+s="stat">Copy วันนี้ <b id="copyCount">0</b></div>
+      <div class="stat">สถานะ <b style="color:var(--green)">พร้อมใช้งาน</b></div>
+    </div>
+
+    <section class="grid" id="grid">
+      <article class="card wide glass">
+        <div class="head"><div><h2>ข้อความทั่วไป</h2><div class="sub">กรอกสาเหตุและวิธีแก้ไข</div></div><span class="badge general">General</span></div>
+        <div class="row">
+          <label><span class="label">สาเหตุ</span><input id="cause" class="input" placeholder="กรอกสาเหตุ"></label>
+          <label><span class="label">แก้ไขโดย</span><input id="fix" class="input" placeholder="กรอกวิธีแก้ไข"></label>
+        </div>
+        <pre class="preview" id="generalPreview"></pre>
+        <div class="actions"><button class="btn red" id="clearGeneral" type="button">ล้าง</button><button class="btn gold copy" data-id="general" type="button">คัดลอก</button></div>
+      </article>
+
+      <article class="card wide glass">
+        <div class="head"><div><h2>Custom Log</h2><div class="sub">รองรับ {{DATE}} และ {{TIME}}</div></div><span class="badge general">Custom</span></div>
+        <div class="row">
+          <label><span class="label">ชื่อ Log</span><input id="customTitle" class="input" value="Custom Log"></label>
+          <label><span class="label">ข้อความ</span><textarea id="customMessage" class="area" rows="3" placeholder="ตัวอย่าง: ตรวจสอบแล้ว วันที่ {{DATE}} เวลา {{TIME}} น."></textarea></label>
+        </div>
+        <pre class="preview" id="customPreview">กรอกข้อความเพื่อสร้าง Log</pre>
+        <div class="actions"><button class="btn gold copy" data-id="custom" type="button">คัดลอก</button></div>
+      </article>
+
+      <article class="card glass">
+        <div class="head"><div><h2>Device Hang</h2><div class="sub">เวลาอัตโนมัติจากเครื่อง</div></div><span class="badge recovered">Recovered</span></div>
+        <div class="time" id="deviceTime">--.--</div>
+        <pre class="preview" id="devicePreview"></pre>
+        <div class="actions"><button class="btn gold copy" data-id="device" type="button">คัดลอก</button></div>
+      </article>
+
+      <article class="card glass">
+        <div class="head"><div><h2>ไม่สามารถติดต่อเจ้าหน้าที่ได้</h2><div class="sub">นอกเวลาทำการ · เวลาคงที่ 08.30</div></div><span class="badge pending">Pending</span></div>
+        <div class="time">08.30</div>
+        <pre class="preview" id="contactPreview"></pre>
+        <div class="actions"><button class="btn gold copy" data-id="contact" type="button">คัดลอก</button></div>
+      </article>
+
+      <article class="card glass">
+        <div class="head"><div><h2>วงจรกลับมาปกติ</h2><div class="sub">Link Up · เวลาอัตโนมัติ</div></div><span class="badge link-badge">Link Up</span></div>
+        <div class="time" id="linkTime">--.--</div>
+        <div class="split">
+          <div><pre class="preview" id="linkMonitorPreview"></pre><div class="actions"><button class="btn gold copy" data-id="linkMonitor" type="button">คัดลอก Link Up</button></div></div>
+          <div><pre class="preview" id="linkFixPreview"></pre><div class="actions"><button class="btn gold copy" data-id="linkFix" type="button">คัดลอกแก้ไขโดย</button></div></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="history glass">
+      <div class="head"><div><h2>ประวัติการคัดลอก</h2><div class="sub">เก็บล่าสุด 30 รายการใน Browser</div></div><button class="btn red" id="clearHistory" type="button">ล้างประวัติ</button></div>
+      <div class="history-list" id="history"></div>
+    </section>
+  </main>
+
+  <div class="modal-bg" id="modal">
+    <div class="modal glass">
+      <div class="modal-top"><div><h2 id="modalTitle">PowerShell Script</h2><p class="sub">คัดลอกแล้ววางใน PowerShell</p></div><button class="btn" id="closeModal" type="button">ปิด</button></div>
+      <pre class="code" id="scriptCode"></pre>
+      <div class="actions"><button class="btn gold" id="copyScript" type="button">คัดลอก Script</button></div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="staffModal">
+    <div class="modal glass staff-modal">
+      <div class="modal-top">
+        <div><h2>รายชื่อ เจ้าหน้าที่ UIH</h2><p class="sub">ชื่อ-นามสกุล · Line ID · ข้อความแจ้งงาน</p></div>
+        <button class="btn" id="closeStaffModal" type="button">ปิด</button>
+      </div>
+      <p class="staff-note">กดปุ่ม Copy เพื่อคัดลอกข้อความ “เจ้าหน้าที่ UIH คุณ… แจ้งว่า”</p>
+      <div class="staff-table-wrap">
+        <table class="staff-table">
+          <thead><tr><th>ชื่อ-นามสกุล</th><th>Line ID</th><th>ข้อความ</th><th>Copy</th></tr></thead>
+          <tbody id="staffTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="modal-bg" id="adviceModal"><div class="modal glass message-modal"><div class="modal-top"><div><h2>แนะนำเจ้าหน้าที่</h2><p class="sub">เลือก Copy เฉพาะข้อความที่ต้องการ</p></div><button class="btn" id="closeAdviceModal">ปิด</button></div><div class="message-list" id="adviceList"></div></div></div>
+  <div class="modal-bg" id="configModal"><div class="modal glass message-modal"><div class="modal-top"><div><h2>Config ใช้บ่อย</h2><p class="sub">คำสั่งและขั้นตอนที่ใช้งานบ่อย</p></div><button class="btn" id="closeConfigModal">ปิด</button></div><div class="message-list" id="configList"></div></div></div>
+  <div class="modal-bg" id="ownerModal"><div class="modal glass message-modal owner-modal"><div class="modal-top"><div><h2>คนดูแลแต่ละ Pak</h2><p class="sub">Update Owner site MA · งาน CM และ PM</p></div><button class="btn" id="closeOwnerModal">ปิด</button></div><div class="message-list" id="ownerList"></div></div></div>
+  <div class="modal-bg" id="lanMaModal"><div class="modal glass message-modal"><div class="modal-top"><div><h2>หน่วยงานที่จุด LAN ไม่อยู่ใน MA</h2><p class="sub">รายชื่อหน่วยงานและหมายเหตุการรับแจ้ง</p></div><button class="btn" id="closeLanMaModal">ปิด</button></div><div class="message-list" id="lanMaList"></div></div></div>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    (()=>{"use strict";
+      cons
