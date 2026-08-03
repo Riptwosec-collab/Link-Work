@@ -1,0 +1,39 @@
+$env:LOCALAPPDATA\\Microsoft\\Edge\\Application\\msedge.exe"'], varName:"edge"}
+      };
+      let activeScript="";
+
+      const now=()=>new Date();
+      const dateText=d=>`${pad(d.getDate())}/${pad(d.getMonth()+1)}/${String(d.getFullYear()+543).slice(-2)}`;
+      const timeDot=d=>`${pad(d.getHours())}.${pad(d.getMinutes())}`;
+      const timeColon=d=>`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+      const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+
+      function toast(text){const el=$("#toast");el.textContent=text;el.classList.add("show");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),2200)}
+      async function copy(text){try{await navigator.clipboard.writeText(text)}catch{const ta=document.createElement("textarea");ta.value=text;document.body.append(ta);ta.select();document.execCommand("copy");ta.remove()}incCopy();addHistory(text);toast("คัดลอกสำเร็จ")}
+      function dayKey(){const d=now();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
+      function getCopy(){const x=JSON.parse(store.get(CKEY)||"{}");return x.date===dayKey() ? x.count||0 : 0}
+      function incCopy(){store.set(CKEY,JSON.stringify({date:dayKey(),count:getCopy()+1}));$("#copyCount").textContent=getCopy()}
+      function getHistory(){return JSON.parse(store.get(HKEY)||"[]")}
+      function addHistory(text){const h=getHistory();h.unshift({text,at:new Date().toISOString()});store.set(HKEY,JSON.stringify(h.slice(0,30)));renderHistory()}
+      function renderHistory(){const h=getHistory(), box=$("#history"); box.innerHTML=h.length ? h.map((x,i)=>`<div class="history-item"><small>${new Date(x.at).toLocaleString("th-TH")}</small><pre>${esc(x.text)}</pre><div class="actions"><button class="btn" data-recopy="${i}" type="button">คัดลอกซ้ำ</button></div></div>`).join("") : '<div class="empty">ยังไม่มีประวัติการคัดลอก</div>'; $$('[data-recopy]').forEach(btn=>btn.onclick=()=>copy(h[+btn.dataset.recopy].text))}
+      function save(){store.set(KEY,JSON.stringify({cause:$("#cause").value,fix:$("#fix").value,title:$("#customTitle").value,message:$("#customMessage").value}))}
+      function load(){const x=JSON.parse(store.get(KEY)||"{}"); $("#cause").value=x.cause||""; $("#fix").value=x.fix||""; $("#customTitle").value=x.title||"Custom Log"; $("#customMessage").value=x.message||""}
+      function textById(id){return id==="custom" ? $("#customPreview").textContent : $("#"+id+"Preview").textContent}
+      function renderLinks(){
+        $("#linksGrid").innerHTML=workLinks.map(x=>`<a class="work-link" href="${x.url}" target="_blank" rel="noopener noreferrer"><span class="link-icon">${esc(x.icon)}</span><span class="link-copy"><span class="link-name">${esc(x.name)}</span><span class="link-url">${esc(x.host)}</span></span><span class="link-arrow" aria-hidden="true">↗</span></a>`).join("");
+      }
+      function renderStaff(){
+        $("#staffTableBody").innerHTML=uihStaff.map((x,i)=>`<tr><td>${x.name?esc(x.name):"&nbsp;"}</td><td>${x.line?esc(x.line):"&nbsp;"}</td><td>${x.copy?esc(x.copy):'<span class="staff-empty">—</span>'}</td><td>${x.copy?`<button class="btn gold staff-copy" type="button" data-staff-copy="${i}">${esc(x.copyLabel||"Copy")}</button>`:'<span class="staff-empty">—</span>'}</td></tr>`).join("");
+        $$('[data-staff-copy]').forEach(btn=>btn.onclick=()=>copy(uihStaff[+btn.dataset.staffCopy].copy));
+      }
+      function renderQuickLists(){
+        const render=(items,target,kind)=>{$(target).innerHTML=items.map((x,i)=>`<article class="message-card${x.tone?` ${esc(x.tone)}`:""}"><div class="message-card-head"><h3>${esc(x.title)}</h3><button class="btn gold" type="button" data-quick-kind="${kind}" data-quick-index="${i}">Copy</button></div><pre>${esc(x.text)}</pre></article>`).join("")};
+        render(adviceItems,"#adviceList","advice");render(configItems,"#configList","config");render(ownerItems,"#ownerList","owner");render(lanMaItems,"#lanMaList","lanma");
+        const groups={advice:adviceItems,config:configItems,owner:ownerItems,lanma:lanMaItems};
+        $$('[data-quick-kind]').forEach(btn=>btn.onclick=()=>copy(groups[btn.dataset.quickKind][+btn.dataset.quickIndex].text));
+      }
+      function previews(){const d=now(), dt=dateText(d), tm=timeDot(d); $("#date").textContent=dt; $("#clock").textContent=timeColon(d); $("#deviceTime").textContent=tm; $("#linkTime").textContent=tm; $("#generalPreview").textContent=`สาเหตุ : ${$("#cause").value}\nแก้ไขโดย : ${$("#fix").value}`; const cm=$("#customMessage").value; $("#customPreview").textContent=cm ? cm.replaceAll("{{DATE}}",dt).replaceAll("{{TIME}}",tm) : "กรอกข้อความเพื่อสร้าง Log"; $("#devicePreview").textContent=`ตรวจสอบ Switch และ Router พบ log reboot อุปกรณ์ ปัจจุบันอุปกรณ์กลับมาใช้งานได้ปกติ วันที่ ${dt} เวลา ${tm} น.`; $("#contactPreview").textContent=`ไม่สามารถติดต่อเจ้าหน้าที่ประจำสำนักงานได้ เนื่องจากเป็นเวลานอกทำการ รอตรวจสอบอีกครั้งเวลาทำการ วันที่ ${dt} เวลา 08.30 น.`; $("#linkMonitorPreview").textContent=`มอนิเตอร์พบ Link up กลับมาวันที่ ${dt} เวลา ${tm} น.`; $("#linkFixPreview").textContent=`แก้ไขโดย : วงจรกลับมาปกติก่อนดำเนินการแก้ไข มอนิเตอร์พบ Link up กลับมาวันที่ ${dt} เวลา ${tm} น.`; save() }
+      function buildScript(type){const x=scripts[type], urlBlock=urls.map(u=>`"${u}"`).join(",\r\n"), pathBlock=x.paths.join(",\r\n"); return `$urls = @(\r\n${urlBlock}\r\n)\r\n\r\n$${x.varName} = @(\r\n${pathBlock}\r\n) | Where-Object { Test-Path $_ } | Select-Object -First 1\r\n\r\nif ($${x.varName}) {\r\n    Start-Process $${x.varName} -ArgumentList (@("--new-window") + $urls)\r\n} else {\r\n    Write-Host "ไม่พบ ${x.name}" -ForegroundColor Red\r\n}` }
+
+      $$('[data-script]').forEach(btn=>btn.onclick=()=>{activeScript=buildScript(btn.dataset.script); $("#modalTitle").textContent=`PowerShell Script · ${scripts[btn.dataset.script].name}`; $("#scriptCode").textContent=activeScript; $("#modal").classList.add("open")});
+      $("#closeModal").onclick
