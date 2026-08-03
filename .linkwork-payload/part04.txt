@@ -1,0 +1,52 @@
+t $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)], pad=n=>String(n).padStart(2,"0");
+      const KEY="linkwork.v1", HKEY="linkwork.history.v1", CKEY="linkwork.copy.v1";
+      const mem={}, store={get:k=>{try{return localStorage.getItem(k)}catch{return mem[k]??null}}, set:(k,v)=>{try{localStorage.setItem(k,v)}catch{mem[k]=v}}, remove:k=>{try{localStorage.removeItem(k)}catch{delete mem[k]}}};
+
+      const workLinks=[
+        {icon:"NOC", name:"Solarwinds", url:"https://nocorion.rd.go.th/Orion/Login.aspx?ReturnUrl=%2fapps%2fplatform%2fdashboard%2f54", host:"nocorion.rd.go.th"},
+        {icon:"HD", name:"Web ใบงาน", url:"https://dcnocwhd.rd.go.th/helpdesk/WebObjects/Helpdesk.woa/wa/TicketActions/view?tab=group", host:"dcnocwhd.rd.go.th"},
+        {icon:"LINE", name:"LINE Official Account", url:"https://access.line.me/oauth2/v2.1/login?returnUri=%2Foauth2%2Fv2.1%2Fauthorize%2Fconsent%3Fresponse_type%3Dcode%26client_id%3D1576775644%26redirect_uri%3Dhttps%253A%252F%252Faccount.line.biz%252Flogin%252Fline-callback%253FredirectUri%253Dhttps%25253A%25252F%25252Faccount.line.biz%25252Foauth2%25252Fcallback%25253Fclient_id%25253D9%252526code_challenge%25253DZT0Ss3G0V9rh0G51S1GPeR1gL_XBjS3pKxB4R0ojW40%252526code_challenge_method%25253DS256%252526redirect_uri%25253Dhttps%2525253A%2525252F%2525252Fchat.line.biz%2525252Foauth2%2525252Flinebiz%2525252Fcallback%252526response_type%25253Dcode%252526state%25253D1iAJThLEJrHksL-Xdj1C4VU-oVuXM4SqNNUbQdZUp_c%2526disableLineAutoLogin%253Dfalse%26scope%3Dprofile%26state%3DlVXCPXsUmGUEsQX3tA0ZU2OVMAeFJXa&loginChannelId=1576775644&loginState=nrDGwtQXgO84UhGH0vyAkE#/", host:"access.line.me"},
+        {icon:"APP", name:"แจ้งซ่อม", url:"http://10.3.10.118/app68-3/admin/admin.php", host:"10.3.10.118"},
+        {icon:"IP", name:"เช็ค IP", url:"https://www.whois.com/whois/", host:"whois.com"},
+        {icon:"WD", name:"WorkD Login", url:"https://workd.go.th/auth/login", host:"workd.go.th"},
+        {icon:"VOIP", name:"จองเบอร์ VoIP", url:"https://network.rd.go.th/voip/book-voip.htm", host:"network.rd.go.th"},
+        {icon:"HR", name:"รายชื่อบุคลากร", url:"https://hrapp2.rd.go.th/fperson2/", host:"hrapp2.rd.go.th"},
+        {icon:"WIFI", name:"คู่มือทุก WiFi Excel", url:"https://docs.google.com/spreadsheets/d/1bDr1bA0QrZRvgMKP9FLvGKJ0btswO9LEFa0gTH_6DEU/edit?gid=1976446373#gid=1976446373", host:"docs.google.com"},
+        {icon:"GUIDE", name:"คู่มือ WiFi", url:"https://rdsrv.rd.go.th/62760/wireless-lan-user-manual.html", host:"rdsrv.rd.go.th"},
+        {icon:"TOR", name:"ผู้ดูแลระบบงาน", url:"https://docs.google.com/spreadsheets/d/1t2nu_08J8M1rgqZCYiUJLCOpqB9cRnM-/edit?gid=1217639332#gid=1217639332", host:"docs.google.com"},
+        {icon:"MON", name:"Monthly", url:"http://10.1.9.170/monthly/", host:"10.1.9.170"}
+      ];
+
+      const uihStaff=[
+        {name:"ณรงค์กรณ์ อุทานวรพจน์",line:"November N uniform",copy:"เจ้าหน้าที่ UIH คุณณรงค์กรณ์ แจ้งว่า "},
+        {name:"กนกอร ตันทะเสน",line:"🌷Y-u-I🌷",copy:"เจ้าหน้าที่ UIH คุณกนกอร แจ้งว่า "},
+        {name:"ไพฑูรย์ โง้วสกุล",line:"Paitoon®",copy:"เจ้าหน้าที่ UIH คุณไพฑูรย์ แจ้งว่า "},
+        {name:"ธัญญาศิริ ศศิเมธาสิทธิ์",line:"ann•_•ann",copy:"เจ้าหน้าที่ UIH คุณธัญญาศิริ แจ้งว่า "},
+        {name:"ศิโรรัตน์ กล้าแก้วกล้า",line:"SiroJan",copy:""},
+        {name:"พิมพ์มาดา สุทธารส",line:"(◕‿◕✿)Phimmada(◕‿◕✿)",copy:"เจ้าหน้าที่ UIH คุณพิมพมาดา แจ้งว่า "},
+        {name:"ณฤดี ลงประเสริฐสกุล",line:"👩‍✈️ โชเปีย 👨‍✈️ โชแปง 👶 โชปาย",copy:""},
+        {name:"จิราภรณ์ แววบุตร",line:"Nueng_Jiraporn556",copy:"เจ้าหน้าที่ UIH คุณจิราพร แจ้งว่า "},
+        {name:"อุไรวรรณ สิโรบล",line:"Ople^_^CC",copy:""},
+        {name:"ฉัตรทิพย์ กักเอี่ยม",line:"Chattip~UIH ✽",copy:"เจ้าหน้าที่ UIH คุณฉัตรทิพย์ แจ้งว่า "},
+        {name:"พิมพ์ใจ นครจันทร์",line:"ออยหย่อยยย",copy:"เจ้าหน้าที่ UIH คุณพิมพ์ใจ แจ้งว่า "},
+        {name:"ธิติพันธ์ ทองน้อย",line:"Kham",copy:""},
+        {name:"จุไรรัตน์ โง้วสกุล",line:"Pl@Tong ✣",copy:"เจ้าหน้าที่ UIH คุณจุไรรัตน์ แจ้งว่า "},
+        {name:"พรสิงห์ โชคงามวงศ์",line:"พรสิงห์",copy:"เจ้าหน้าที่ UIH คุณพรสิงห์ แจ้งว่า "},
+        {name:"มลฤดี ชิณธรรม",line:"Ⓜ_©hin",copy:"เจ้าหน้าที่ UIH คุณมลฤดี แจ้งว่า "},
+        {name:"วิฑวัสซ์ พลวรรณาภา",line:"Kutar(UIH)",copy:"เจ้าหน้าที่ UIH คุณวิฑวัสซ์ แจ้งว่า "},
+        {name:"ชิษณุพงศ์ ปิติธีรเศรษฐ์",line:"ohchittt",copy:""},
+        {name:"สุทธิคุณ โนทะ",line:"Suttikun",copy:""},
+        {name:"จีราวัช นาคง",line:"Geerawat #ตัวตุ่น",copy:"เจ้าหน้าที่ UIH คุณจีราวัช แจ้งว่า "},
+        {name:"สรชัย ยอดสินธุ์",line:"Edioz",copy:"เจ้าหน้าที่ UIH คุณสรชัย แจ้งว่า "},
+        {name:"พิชิต ทับคล้าย",line:"chit_aaa",copy:"เจ้าหน้าที่ UIH คุณพิชิต แจ้งว่า "},
+        {name:"ณรงค์กรณ์ อุทานวรพจน์",line:"November N uniform",copy:"เจ้าหน้าที่ UIH คุณณรงค์กรณ์ แจ้งว่า "},
+        {name:"เดชา",line:"Fb888",copy:"เจ้าหน้าที่ UIH คุณเดชา แจ้งว่า "},
+        {name:"ปาริวัฒน์",line:"DOME",copy:"เจ้าหน้าที่ UIH คุณปาริวัฒน์ แจ้งว่า "},
+        {name:"สนาน",line:"สนาน",copy:"เจ้าหน้าที่ UIH คุณสนาน แจ้งว่า "},
+        {name:"อรรถพันธ์",line:"arms ผู้ตื่นรึยังนะ",copy:"เจ้าหน้าที่ UIH คุณอรรถพันธ์ แจ้งว่า "},
+        {name:"ชัยนันท์",line:"Chain",copy:"เจ้าหน้าที่ UIH คุณชัยนันท์ แจ้งว่า "},
+        {name:"",line:"",copy:"เจ้าหน้าที่ UIH คุณชัยยุทธ แจ้งว่า ",copyLabel:"Copy ชัยยุทธ"},
+        {name:"",line:"",copy:"เจ้าหน้าที่ UIH คุณเจษฏา แจ้งว่า ",copyLabel:"Copy เจษฏา"}
+      ];
+
+      const adviceItems=[{"title": "ขั้นตอน Fixed IP", "text": "ขั้นตอนวิธี Fixed IP ทำตามขั้นตอนนี้ครับ/ค่ะ\nกดปุ่ม Windows + R บนคีย์บอร์ด\n2.พิมพ์คำว่า ncpa.cpl และกด enter\n3.หา icon รูป Computer ที่ชื่อว่า Ethernet และกดดับเบิ้ลคลิก และเลือกที่ Properties\n4.หาคำว่า Internet Protocal Version4(TCP/ IPv4)และกดดับเบิ้ลคลิก\n5.กรอกข้อมูลตามที่เจ้าหน้าที่ Network แจ้งตามช่องทั้ง5 ช่อง\n\nรบกวนเจ้าหน้าที่ช่วย Fix IP ตามนี้ให้หน่อยครับ\nip: 10.38.17.100\nSubnetmark: 255.255.255.0\nGateway: 10.38.17.224\ndns: 10.20.100.2 \ndns: 10.26.100.2"}, {"title": "เปลี่ยน MAC Address", "text":
