@@ -18,17 +18,33 @@
     (async()=>{
       const status=document.getElementById('status');
       try{
-        const path='assets/linkwork-dropdown-1.txt?v=20260804-1012';
-        const response=await fetch(path,{cache:'no-store'});
-        if(!response.ok)throw new Error(`โหลด ${path} ไม่สำเร็จ (${response.status})`);
-        const base64=(await response.text()).replace(/\s+/g,'');
+        const version='20260804-1018';
+        const paths=[1,2,3,4,5].map(n=>`assets/linkwork-payload-${n}.txt?v=${version}`);
+        const parts=await Promise.all(paths.map(async path=>{
+          const response=await fetch(path,{cache:'no-store'});
+          if(!response.ok)throw new Error(`โหลด ${path} ไม่สำเร็จ (${response.status})`);
+          return (await response.text()).replace(/\s+/g,'');
+        }));
+        const base64=parts.join('');
         if(!base64||base64.length%4!==0)throw new Error(`ข้อมูลหน้าเว็บไม่ครบ (${base64.length} ตัวอักษร)`);
         const binary=atob(base64);
         const bytes=Uint8Array.from(binary,char=>char.charCodeAt(0));
         if(typeof DecompressionStream!=='function')throw new Error('เบราว์เซอร์ไม่รองรับการคลายไฟล์ กรุณาใช้ Chrome หรือ Edge เวอร์ชันล่าสุด');
         const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
-        const html=await new Response(stream).text();
-        if(!html.includes('<title>LinkWork</title>')||!html.includes('id="trafficBracket"'))throw new Error('ตรวจสอบไฟล์หน้าเว็บไม่ผ่าน');
+        let html=await new Response(stream).text();
+        html=html.replace(
+          '<label><span class="label">ข้อความในวงเล็บ</span><input class="input" id="trafficBracket" placeholder="BANGMOD-TH"></label>',
+          '<label><span class="label">ข้อความในวงเล็บ</span><select class="input" id="trafficBracket"><option value="">เลือกประเภท</option><option value="TRUE">TRUE</option><option value="UIH">UIH</option><option value="Google">Google</option><option value="Private">Private</option><option value="Amazon">Amazon</option></select></label>'
+        );
+        html=html.replace(
+          'if(bracket)$("#trafficBracket").value=bracket[1].trim();',
+          'if(bracket){const value=bracket[1].trim(),select=$("#trafficBracket"),option=[...select.options].find(item=>item.value.toLowerCase()===value.toLowerCase());if(option)select.value=option.value;}'
+        );
+        html=html.replace(
+          '["trafficTime","trafficSourceIp","trafficDestinationIp","trafficBracket"].forEach(id=>$("#"+id).addEventListener("input",convertTrafficLog));',
+          '["trafficTime","trafficSourceIp","trafficDestinationIp"].forEach(id=>$("#"+id).addEventListener("input",convertTrafficLog));$("#trafficBracket").addEventListener("change",convertTrafficLog);'
+        );
+        if(!html.includes('<option value="TRUE">TRUE</option>')||!html.includes('<option value="Amazon">Amazon</option>'))throw new Error('เพิ่ม Dropdown ไม่สำเร็จ');
         document.open();document.write(html);document.close();
       }catch(error){
         status.className='error';
