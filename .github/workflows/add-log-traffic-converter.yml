@@ -1,0 +1,161 @@
+name: Add Log Traffic converter
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/add-log-traffic-converter.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-log-traffic:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Add Log Traffic converter
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("index.html")
+          html = path.read_text(encoding="utf-8")
+
+          if 'id="trafficModal"' in html:
+              print("Log Traffic converter is already installed")
+              raise SystemExit(0)
+
+          css_anchor = '    .toast{position:fixed;right:16px;bottom:16px;z-index:40;max-width:380px;background:#071a31;border:1px solid var(--green);border-radius:13px;padding:12px 15px;box-shadow:0 16px 40px #0008;display:none}.toast.show{display:block}\n'
+          css_extra = '''    .traffic-modal{width:min(1050px,100%)}.traffic-layout{display:grid;gap:13px}.traffic-time-row{display:grid;grid-template-columns:minmax(180px,260px) 1fr;gap:12px;align-items:end}.traffic-help{padding:11px 13px;border:1px solid rgba(84,177,255,.22);border-radius:12px;background:rgba(3,15,32,.72);color:var(--muted);font-size:.82rem;line-height:1.5}.traffic-output{min-height:120px}.traffic-actions{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.traffic-actions-left,.traffic-actions-right{display:flex;gap:8px;flex-wrap:wrap}@media(max-width:720px){.traffic-time-row{grid-template-columns:1fr}.traffic-actions,.traffic-actions-left,.traffic-actions-right{flex-direction:column}.traffic-actions .btn{width:100%}}\n'''
+          if css_anchor not in html:
+              raise SystemExit("CSS anchor not found")
+          html = html.replace(css_anchor, css_extra + css_anchor, 1)
+
+          quick_anchor = '''    </section>
+
+    <div class="stats">'''
+          converter_section = '''    </section>
+
+    <section class="section glass quick-tools" aria-labelledby="logConverterTitle">
+      <div class="section-title"><div><h2 id="logConverterTitle">แปลง Log</h2><p>ปรับเวลา ซ่อนเลขท้าย IP และจัดข้อความให้อยู่ในรูปแบบพร้อมใช้งาน</p></div></div>
+      <div class="quick-grid">
+        <button class="work-link" id="openTrafficModal" type="button"><span class="link-icon">LOG</span><span class="link-copy"><span class="link-name">Log Traffic</span><span class="link-url">เวลาอัตโนมัติ · IP ลงท้าย xx · Copy</span></span><span class="link-arrow">›</span></button>
+      </div>
+    </section>
+
+    <div class="stats">'''
+          if quick_anchor not in html:
+              raise SystemExit("Quick section anchor not found")
+          html = html.replace(quick_anchor, converter_section, 1)
+
+          modal_anchor = '  <div class="toast" id="toast"></div>\n'
+          traffic_modal = '''  <div class="modal-bg" id="trafficModal">
+    <div class="modal glass traffic-modal">
+      <div class="modal-top">
+        <div><h2>Log Traffic</h2><p class="sub">วาง Log เดิม ระบบจะเปลี่ยนเวลา ซ่อนเลขท้าย IP และตัดคำว่า “ไม่ Block”</p></div>
+        <button class="btn" id="closeTrafficModal" type="button">ปิด</button>
+      </div>
+      <div class="traffic-layout">
+        <div class="traffic-time-row">
+          <label><span class="label">เวลาใน Log</span><input class="input" id="trafficTime" type="time" step="60"></label>
+          <div class="traffic-help">ตั้งเป็นเวลาปัจจุบันอัตโนมัติ และสามารถเลือกเวลาใหม่ได้ก่อน Copy</div>
+        </div>
+        <label><span class="label">วาง Log ต้นฉบับ</span><textarea class="area" id="trafficInput" rows="6" placeholder="เวลา 08.10 น. ตรวจสอบพบต้นทาง IP : 10.93.1.138 เรียกไปปลายทาง IP : 103.245.165.75 ( BANGMOD-TH ) ไม่ Block การใช้งานเนื่องจากตรวจสอบแล้วเป็นการใช้งานตามปกติ"></textarea></label>
+        <div>
+          <span class="label">ผลลัพธ์</span>
+          <pre class="preview traffic-output" id="trafficOutput">วาง Log Traffic เพื่อแปลง</pre>
+        </div>
+        <div class="traffic-actions">
+          <div class="traffic-actions-left"><button class="btn" id="setTrafficNow" type="button">ใช้เวลาปัจจุบัน</button><button class="btn red" id="clearTraffic" type="button">ล้าง</button></div>
+          <div class="traffic-actions-right"><button class="btn" id="convertTraffic" type="button">แปลงข้อความ</button><button class="btn gold" id="copyTraffic" type="button">Copy ผลลัพธ์</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+'''
+          if modal_anchor not in html:
+              raise SystemExit("Modal anchor not found")
+          html = html.replace(modal_anchor, traffic_modal, 1)
+
+          function_anchor = '      function previews(){const d=now(), dt=dateText(d), tm=timeDot(d);'
+          traffic_functions = '''      function trafficTimeNow(){const d=now();return `${pad(d.getHours())}:${pad(d.getMinutes())}`}
+      function setTrafficTimeNow(){$("#trafficTime").value=trafficTimeNow();convertTrafficLog()}
+      function convertTrafficLog(){
+        const input=$("#trafficInput").value.trim(), output=$("#trafficOutput");
+        if(!input){output.textContent="วาง Log Traffic เพื่อแปลง";return ""}
+        const selected=$("#trafficTime").value||trafficTimeNow(), shownTime=selected.replace(":",".");
+        let result=input;
+        const timePattern=/เวลา\\s+\\d{1,2}[.:]\\d{2}\\s*น\\./i;
+        result=timePattern.test(result)?result.replace(timePattern,`เวลา ${shownTime} น.`):`เวลา ${shownTime} น. ${result}`;
+        result=result.replace(/\\b(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})\\.\\d{1,3}\\b/g,"$1.xx");
+        result=result.replace(/\\s*ไม่\\s*Block\\s*/gi," ");
+        result=result.replace(/[ \\t]+/g," ").replace(/\\s+([,.;:])/g,"$1").trim();
+        output.textContent=result;return result;
+      }
+      function previews(){const d=now(), dt=dateText(d), tm=timeDot(d);'''
+          if function_anchor not in html:
+              raise SystemExit("Previews anchor not found")
+          html = html.replace(function_anchor, traffic_functions, 1)
+
+          pairs_anchor = '        ["openLanMaModal","lanMaModal","closeLanMaModal"]\n'
+          pairs_new = '        ["openLanMaModal","lanMaModal","closeLanMaModal"],\n        ["openTrafficModal","trafficModal","closeTrafficModal"]\n'
+          if pairs_anchor not in html:
+              raise SystemExit("Modal pairs anchor not found")
+          html = html.replace(pairs_anchor, pairs_new, 1)
+
+          esc_anchor = '      document.addEventListener("keydown",e=>{if(e.key==="Escape")["modal","staffModal","adviceModal","configModal","ownerModal","lanMaModal"].forEach(id=>$("#"+id).classList.remove("open"))});\n'
+          esc_new = '''      $("#openTrafficModal").onclick=()=>{setTrafficTimeNow();$("#trafficModal").classList.add("open")};
+      document.addEventListener("keydown",e=>{if(e.key==="Escape")["modal","staffModal","adviceModal","configModal","ownerModal","lanMaModal","trafficModal"].forEach(id=>$("#"+id).classList.remove("open"))});
+      $("#trafficInput").addEventListener("input",convertTrafficLog);
+      $("#trafficTime").addEventListener("input",convertTrafficLog);
+      $("#setTrafficNow").onclick=setTrafficTimeNow;
+      $("#convertTraffic").onclick=convertTrafficLog;
+      $("#clearTraffic").onclick=()=>{$("#trafficInput").value="";setTrafficTimeNow();$("#trafficOutput").textContent="วาง Log Traffic เพื่อแปลง"};
+      $("#copyTraffic").onclick=()=>{const result=convertTrafficLog();if(result)copy(result);else toast("กรุณาวาง Log ก่อน")};
+'''
+          if esc_anchor not in html:
+              raise SystemExit("Escape anchor not found")
+          html = html.replace(esc_anchor, esc_new, 1)
+
+          init_anchor = '      renderLinks(); renderStaff(); renderQuickLists(); load(); previews(); renderHistory(); $("#copyCount").textContent=getCopy(); setInterval(previews,1000);\n'
+          init_new = '      renderLinks(); renderStaff(); renderQuickLists(); load(); setTrafficTimeNow(); previews(); renderHistory(); $("#copyCount").textContent=getCopy(); setInterval(previews,1000);\n'
+          if init_anchor not in html:
+              raise SystemExit("Init anchor not found")
+          html = html.replace(init_anchor, init_new, 1)
+
+          required = ['id="openTrafficModal"','id="trafficModal"','id="trafficTime"','function convertTrafficLog()','Copy ผลลัพธ์']
+          missing = [item for item in required if item not in html]
+          if missing:
+              raise SystemExit(f"Missing required markers: {missing}")
+
+          path.write_text(html, encoding="utf-8")
+
+      - name: Validate JavaScript
+        shell: python
+        run: |
+          from pathlib import Path
+          html = Path("index.html").read_text(encoding="utf-8")
+          start = html.index("<script>") + len("<script>")
+          end = html.index("</script>", start)
+          Path("/tmp/linkwork.js").write_text(html[start:end], encoding="utf-8")
+
+      - name: Check JavaScript syntax
+        run: node --check /tmp/linkwork.js
+
+      - name: Commit changes
+        shell: bash
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "index.html is already current"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Add Log Traffic converter"
+          git push
