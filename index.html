@@ -18,7 +18,7 @@
     (async()=>{
       const status=document.getElementById('status');
       try{
-        const version='20260804-1041';
+        const version='20260804-1712';
         const paths=[1,2,3,4,5].map(n=>`assets/linkwork-payload-${n}.txt?v=${version}`);
         const parts=await Promise.all(paths.map(async path=>{
           const response=await fetch(path,{cache:'no-store'});
@@ -45,14 +45,17 @@
           '["trafficTime","trafficSourceIp","trafficDestinationIp"].forEach(id=>$("#"+id).addEventListener("input",convertTrafficLog));$("#trafficBracket").addEventListener("change",convertTrafficLog);'
         );
         const utilityUrl='http://10.20.2.17/project/'+'check'+'passwd.aspx';
-        if(!html.includes(utilityUrl)){
+        const dhcpUrl='https://dhcp-automation-pro.vercel.app/#dhcp';
+        const nightUrl='https://night-d1-riptwosec.vercel.app/';
+        const monthlyItem='        {icon:"MON", name:"Monthly", url:"http://10.1.9.170/monthly/", host:"10.1.9.170"}';
+        if(!html.includes(dhcpUrl)||!html.includes(nightUrl)||!html.includes(utilityUrl)){
           html=html.replace(
-            '        {icon:"MON", name:"Monthly", url:"http://10.1.9.170/monthly/", host:"10.1.9.170"}',
-            '        {icon:"KEY", name:"ตรวจรหัส", url:"'+utilityUrl+'", host:"10.20.2.17"},\n        {icon:"MON", name:"Monthly", url:"http://10.1.9.170/monthly/", host:"10.1.9.170"}'
+            monthlyItem,
+            '        {icon:"KEY", name:"ตรวจรหัส", url:"'+utilityUrl+'", host:"10.20.2.17"},\n        {icon:"DHCP", name:"Dhcp Auto", url:"'+dhcpUrl+'", host:"dhcp-automation-pro.vercel.app"},\n        {icon:"D1", name:"Night D1", url:"'+nightUrl+'", host:"night-d1-riptwosec.vercel.app"},\n'+monthlyItem
           );
         }
         if(!html.includes('<option value="TRUE">TRUE</option>')||!html.includes('<option value="Amazon">Amazon</option>'))throw new Error('เพิ่ม Dropdown ไม่สำเร็จ');
-        if(!html.includes(utilityUrl))throw new Error('เพิ่มปุ่มลิงก์ไม่สำเร็จ');
+        if(!html.includes(utilityUrl)||!html.includes(dhcpUrl)||!html.includes(nightUrl))throw new Error('เพิ่มปุ่มลิงก์ไม่สำเร็จ');
         document.open();document.write(html);document.close();
       }catch(error){
         status.className='error';
