@@ -11,6 +11,7 @@
     .loading{width:min(560px,100%);padding:22px;border:1px solid #235a8f;border-radius:18px;background:#071a31;box-shadow:0 18px 48px #0008}
     h1{margin:0 0 8px;color:#fff1b8;font-size:1.3rem}p{margin:0;color:#9eb3ca;line-height:1.6}.error{color:#ff9aaa;white-space:pre-wrap}
   </style>
+  <link rel="stylesheet" href="assets/theme-upgrade.css?v=20260806-1708">
 </head>
 <body>
   <div class="loading"><h1>LinkWork</h1><p id="status">กำลังโหลดหน้าเว็บ…</p></div>
@@ -76,14 +77,19 @@
         );
         html=html.replace('      const workLinks=[','      store.remove(HKEY);\n\n      const workLinks=[');
 
-        const cmTag='<scr'+'ipt src="assets/cm-generator.js?v=20260806-1645"></scr'+'ipt>';
-        html=html.replace('</body>',cmTag+'</body>');
+        const themeTag='<link rel="stylesheet" href="assets/theme-upgrade.css?v=20260806-1708">';
+        html=html.replace('</head>',themeTag+'</head>');
+        const cmTag='<scr'+'ipt src="assets/cm-generator.js?v=20260806-1708"></scr'+'ipt>';
+        const ipPhoneTag='<scr'+'ipt src="assets/ip-phone-guide.js?v=20260806-1708"></scr'+'ipt>';
+        html=html.replace('</body>',cmTag+ipPhoneTag+'</body>');
 
         const requiredLinks=[utilityUrl,dhcpUrl,nightUrl,helpdeskV2Url];
         if(requiredLinks.some(url=>!html.includes(url)))throw new Error('เพิ่มปุ่มลิงก์ไม่สำเร็จ');
         if(html.includes('ประวัติการคัดลอก')||html.includes('id="clearHistory"')||html.includes('id="history"'))throw new Error('ลบประวัติการคัดลอกไม่สำเร็จ');
         if(!html.includes('function addHistory(text){}')||!html.includes('store.remove(HKEY);'))throw new Error('ปิดการบันทึกประวัติไม่สำเร็จ');
         if(!html.includes('assets/cm-generator.js'))throw new Error('เพิ่มเครื่องมือสร้างข้อความ CM ไม่สำเร็จ');
+        if(!html.includes('assets/theme-upgrade.css'))throw new Error('โหลดธีมใหม่ไม่สำเร็จ');
+        if(!html.includes('assets/ip-phone-guide.js'))throw new Error('เพิ่มคู่มือ IP Phone ไม่สำเร็จ');
 
         document.open();document.write(html);document.close();
       }catch(error){
