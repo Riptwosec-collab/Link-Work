@@ -18,7 +18,7 @@
     (async()=>{
       const status=document.getElementById('status');
       try{
-        const version='20260806-1505';
+        const version='20260806-1608';
         const paths=[1,2,3,4,5].map(n=>`assets/linkwork-payload-${n}.txt?v=${version}`);
         const parts=await Promise.all(paths.map(async path=>{
           const response=await fetch(path,{cache:'no-store'});
@@ -89,10 +89,13 @@
           '      store.remove(HKEY);\n\n      const workLinks=['
         );
 
+        html=html.replace('</body>','<script src="assets/cm-generator.js?v=20260806-1608"></script></body>');
+
         const requiredLinks=[utilityUrl,dhcpUrl,nightUrl,helpdeskV2Url];
         if(requiredLinks.some(url=>!html.includes(url)))throw new Error('เพิ่มปุ่มลิงก์ไม่สำเร็จ');
         if(html.includes('ประวัติการคัดลอก')||html.includes('id="clearHistory"')||html.includes('id="history"'))throw new Error('ลบประวัติการคัดลอกไม่สำเร็จ');
         if(!html.includes('function addHistory(text){}')||!html.includes('store.remove(HKEY);'))throw new Error('ปิดการบันทึกประวัติไม่สำเร็จ');
+        if(!html.includes('assets/cm-generator.js'))throw new Error('เพิ่มเครื่องมือสร้างข้อความ CM ไม่สำเร็จ');
 
         document.open();document.write(html);document.close();
       }catch(error){
