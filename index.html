@@ -93,7 +93,8 @@
           'assets/security-topic-sticky.js',
           'assets/security-guide-core.js'
         ].map(src=>'<scr'+'ipt src="'+src+'?v=20260807-1001"></scr'+'ipt>').join('');
-        html=html.replace('</body>',cmTag+ipPhoneTag+securityTags+'</body>');
+        const logUiTag='<scr'+'ipt src="assets/log-ui-patch.js?v=20260807-1035"></scr'+'ipt>';
+        html=html.replace('</body>',cmTag+ipPhoneTag+securityTags+logUiTag+'</body>');
 
         const requiredLinks=[utilityUrl,dhcpUrl,nightUrl,helpdeskV2Url];
         if(requiredLinks.some(url=>!html.includes(url)))throw new Error('เพิ่มปุ่มลิงก์ไม่สำเร็จ');
@@ -103,6 +104,7 @@
         if(!html.includes('assets/theme-upgrade.css'))throw new Error('โหลดธีมใหม่ไม่สำเร็จ');
         if(!html.includes('assets/ip-phone-guide.js'))throw new Error('เพิ่มคู่มือ IP Phone ไม่สำเร็จ');
         if(!html.includes('assets/security-guide-core.js')||!html.includes('assets/security-topic-sticky.js'))throw new Error('เพิ่ม Security Knowledge Base ไม่สำเร็จ');
+        if(!html.includes('assets/log-ui-patch.js'))throw new Error('ปรับ Log UI ไม่สำเร็จ');
 
         document.open();document.write(html);document.close();
       }catch(error){
