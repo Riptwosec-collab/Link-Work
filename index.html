@@ -87,6 +87,7 @@
         const cmTag='<scr'+'ipt src="assets/cm-generator-v2.js?v=20260807-0925"></scr'+'ipt>';
         const ipPhoneTag='<scr'+'ipt src="assets/ip-phone-guide-polished.js?v=20260807-1145"></scr'+'ipt>';
         const ipPhoneCiscoTag='<scr'+'ipt src="assets/ip-phone-cisco-patch.js?v=20260807-1535"></scr'+'ipt>';
+        const passwordGateTag='<scr'+'ipt src="assets/password-gate.js?v=20260807-1715"></scr'+'ipt>';
         const ownerPakTag='<scr'+'ipt src="assets/owner-pak-upgrade.js?v=20260807-1215"></scr'+'ipt>';
         const securityTags=[
           'assets/security-topic-mac.js',
@@ -98,7 +99,7 @@
           'assets/security-guide-core.js'
         ].map(src=>'<scr'+'ipt src="'+src+'?v=20260807-1245"></scr'+'ipt>').join('');
         const logUiTag='<scr'+'ipt src="assets/log-ui-patch.js?v=20260807-1035"></scr'+'ipt>';
-        html=html.replace('</body>',cmTag+ipPhoneTag+ipPhoneCiscoTag+ownerPakTag+securityTags+logUiTag+'</body>');
+        html=html.replace('</body>',cmTag+ipPhoneTag+ipPhoneCiscoTag+passwordGateTag+ownerPakTag+securityTags+logUiTag+'</body>');
 
         const requiredLinks=[utilityUrl,dhcpUrl,nightUrl,helpdeskV2Url];
         if(requiredLinks.some(url=>!html.includes(url)))throw new Error('เพิ่มปุ่มลิงก์ไม่สำเร็จ');
@@ -108,6 +109,7 @@
         if(!html.includes('assets/theme-upgrade.css'))throw new Error('โหลดธีมใหม่ไม่สำเร็จ');
         if(!html.includes('assets/linkwork-neon-theme.css'))throw new Error('โหลดธีม Neon ใหม่ไม่สำเร็จ');
         if(!html.includes('assets/ip-phone-guide-polished.js')||!html.includes('assets/ip-phone-cisco-patch.js'))throw new Error('เพิ่มคู่มือ Cisco IP Phone ไม่สำเร็จ');
+        if(!html.includes('assets/password-gate.js'))throw new Error('โหลด Password Gate ไม่สำเร็จ');
         if(!html.includes('assets/owner-pak-upgrade.js'))throw new Error('อัปเกรดคนดูแลแต่ละ Pak ไม่สำเร็จ');
         if(!html.includes('assets/security-guide-core.js')||!html.includes('assets/security-topic-sticky.js'))throw new Error('เพิ่ม Security Knowledge Base ไม่สำเร็จ');
         if(!html.includes('assets/log-ui-patch.js'))throw new Error('ปรับ Log UI ไม่สำเร็จ');
