@@ -81,7 +81,7 @@
         html=html.replace('      const workLinks=[','      store.remove(HKEY);\n\n      const workLinks=[');
 
         const themeTag='<link rel="stylesheet" href="assets/theme-upgrade.css?v=20260806-1708">';
-        const securityStyleTag='<link rel="stylesheet" href="assets/security-guide.css?v=20260807-1001">';
+        const securityStyleTag='<link rel="stylesheet" href="assets/security-guide.css?v=20260807-1235">';
         const neonThemeTag='<link rel="stylesheet" href="assets/linkwork-neon-theme.css?v=20260807-1105">';
         html=html.replace('</head>',themeTag+securityStyleTag+neonThemeTag+'</head>');
         const cmTag='<scr'+'ipt src="assets/cm-generator-v2.js?v=20260807-0925"></scr'+'ipt>';
@@ -95,7 +95,7 @@
           'assets/security-topic-null0.js',
           'assets/security-topic-sticky.js',
           'assets/security-guide-core.js'
-        ].map(src=>'<scr'+'ipt src="'+src+'?v=20260807-1001"></scr'+'ipt>').join('');
+        ].map(src=>'<scr'+'ipt src="'+src+'?v=20260807-1235"></scr'+'ipt>').join('');
         const logUiTag='<scr'+'ipt src="assets/log-ui-patch.js?v=20260807-1035"></scr'+'ipt>';
         html=html.replace('</body>',cmTag+ipPhoneTag+ownerPakTag+securityTags+logUiTag+'</body>');
 
